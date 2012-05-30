@@ -99,7 +99,7 @@ int readAllReads(char *fileName1,
 		 unsigned int *seqListSize)
 {
   double startTime=getTime();
-
+  
   char seq1[SEQ_MAX_LENGTH];
   char rseq1[SEQ_MAX_LENGTH];
   char name1[SEQ_MAX_LENGTH];
@@ -217,13 +217,21 @@ int readAllReads(char *fileName1,
       readFirstSeq(seq1);
 
       if (errThreshold == 255){
-	errThreshold = (int) ceil((strlen(seq1)-1) * 0.04);
-	fprintf(stdout, "Sequence length: %d bp. Error threshold is set to %d bp.\n", ((int)strlen(seq1)-1), errThreshold);
+	if (cropSize > 0) 
+	  {
+	    errThreshold = (int) ceil(cropSize * 0.04);
+	    fprintf(stdout, "Sequence length: %d bp. Error threshold is set to %d bp.\n", cropSize, errThreshold);
+	  }
+	else
+	  {
+	    errThreshold = (int) ceil((strlen(seq1)-1) * 0.04);
+	    fprintf(stdout, "Sequence length: %d bp. Error threshold is set to %d bp.\n", ((int)strlen(seq1)-1), errThreshold);
+	  }
 	fprintf(stdout, "You can override this value using the -e parameter.\n");
       }
-
+	
       name1[strlen(name1)-1] = '\0';
-
+	
       if ( *fastq )
 	{
 	  readFirstSeq(dummy);
@@ -234,7 +242,7 @@ int readAllReads(char *fileName1,
 	{
 	  sprintf(qual1, "*");
 	}
-		
+	
       // Cropping
       if (cropSize > 0)
 	{
@@ -614,10 +622,10 @@ int readAllReads(char *fileName1,
   else
     fprintf(stdout, "%d sequence is read in %0.2f. (%d discarded) [Mem:%0.2f M]\n", seqCnt, (getTime()-startTime), discarded, getMemUsage());
 
-
-
   return 1;
 }
+
+
 /**********************************************/
 void loadSamplingLocations(int **samplingLocs, int * samplingLocsSize)
 {

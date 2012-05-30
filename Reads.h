@@ -49,10 +49,10 @@
 // fastHASH: key_struct
 typedef struct
 {
-    unsigned int* key_entry;
-    int key_entry_size;
-    int key_number;
-    int order;  
+  unsigned int* key_entry;
+  int key_entry_size;
+  int key_number;
+  int order;  
 } key_struct; 
 
 typedef struct

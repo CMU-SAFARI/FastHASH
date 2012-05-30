@@ -52,6 +52,8 @@ int				uniqueMode=1;
 int				indexingMode;
 int				searchingMode;
 int				pairedEndMode;
+int				pairedEndModeMP;
+int				pairedEndModePE;
 int				pairedEndDiscordantMode;
 int				transChromosomal=0;
 int				pairedEndProfilingMode;
@@ -98,7 +100,8 @@ int parseCommandLine (int argc, char *argv[])
   
   static struct option longOptions[] = 
     {
-      {"pe",		no_argument,  	    &pairedEndMode,		1},
+      {"mp",   	        no_argument,	    &pairedEndModeMP,		1},
+      {"pe",		no_argument,  	    &pairedEndModePE,		1},
       {"discordant-vh", no_argument,	    &pairedEndDiscordantMode,	1},
       {"trans",         no_argument,        &transChromosomal,          1},
       {"profile",       no_argument, 	    &pairedEndProfilingMode,	1},
@@ -195,7 +198,7 @@ int parseCommandLine (int argc, char *argv[])
 	  return 0;
 	  break;
 	case 'v':
-	  fprintf(stdout, "%s.%s\n", versionNumber, versionNumberF);
+	  fprintf(stdout, "mrFAST %s.%s with FastHASH\n", versionNumber, versionNumberF);
 	  return 0;
 	  break;				
 	case '?': 
@@ -221,15 +224,8 @@ int parseCommandLine (int argc, char *argv[])
 
   if ( indexingMode )
     {
-      CONTIG_SIZE		= 80000000;	// fastHASH
-      CONTIG_MAX_SIZE	= 120000000;	// fastHASH
-
-	  /**************************************************/
-	  /* Original MrFAST								*/
-	  /**************************************************/
-      //CONTIG_SIZE		= 15000000;
-      //CONTIG_MAX_SIZE	= 40000000;
-
+      CONTIG_SIZE		= 120000000;
+      CONTIG_MAX_SIZE	= 250000000;
 
       if (fastaFile == NULL)
 	{
@@ -250,8 +246,14 @@ int parseCommandLine (int argc, char *argv[])
     {
       CONTIG_SIZE		= 300000000;
       CONTIG_MAX_SIZE	= 300000000;
-
-
+      
+      if (pairedEndModeMP && pairedEndModePE){
+	fprintf(stdout, "ERROR: Use either --pe or --mp, not both. \n");
+	return 0;
+      }
+      
+      pairedEndMode = (pairedEndModeMP || pairedEndModePE);
+		
       if (fastaFile == NULL)
 	{
 	  fprintf(stdout, "ERROR: Index File should be indiciated for searching\n");
@@ -355,7 +357,7 @@ void printHelp()
   char *errorType;
   if (mrFAST)
     {
-      fprintf(stdout,"mrFAST : Micro-Read Fast Alignment Search Tool.\n\n");
+      fprintf(stdout,"mrFAST : Micro-Read Fast Alignment Search Tool. Enhanced with FastHASH.\n\n");
       fprintf(stdout,"Usage: mrfast [options]\n\n");
       errorType="edit distance";
     }
@@ -394,8 +396,9 @@ void printHelp()
   fprintf(stdout," -e [int]\t\tMaximum allowed %s (default 4%% of the read length).\n", errorType);
   fprintf(stdout," --min [int]\t\tMin distance allowed between a pair of end sequences.\n");
   fprintf(stdout," --max [int]\t\tMax distance allowed between a pair of end sequences.\n");
-  fprintf(stdout," --maxoea [int]\t\tMax number of One End Anchored (OEA) returned for each read pair. We recommend 100 or above for NovelSeq use.\n");
-  fprintf(stdout," --maxdis [int]\t\tMax number of discordant map locations returned for each read pair. We recommend 300 or above for VariationHunter use.\n");
+  fprintf(stdout," --maxoea [int]\t\tMax number of One End Anchored (OEA) returned for each read pair.\n\t\t\tWe recommend 100 or above for NovelSeq use.\n");
+  fprintf(stdout," --maxdis [int]\t\tMax number of discordant map locations returned for each read pair.\n\t\t\tWe recommend 300 or above for VariationHunter use.\n");
+  fprintf(stdout," --crop [int]\t\tTrim the reads to the given length.\n");
   fprintf(stdout," --sample [string]\tSample name to be added to the SAM header (optional).\n");
   fprintf(stdout," --rg [string]\t\tRead group ID to be added to the SAM header (optional).\n");
   fprintf(stdout," --lib [string]\t\tLibrary name to be added to the SAM header (optional).\n");

@@ -30,14 +30,14 @@
 
 /*
   Authors: 
-	Farhad Hormozdiari
-        Faraz Hach
-	Can Alkan
+  Farhad Hormozdiari
+  Faraz Hach
+  Can Alkan
   Emails: 
-	farhadh AT uw DOT edu
-	fhach AT cs DOT sfu DOT ca
-	calkan AT cs DOT bilkent DOT edu DOT tr
- */
+  farhadh AT uw DOT edu
+  fhach AT cs DOT sfu DOT ca
+  calkan AT cs DOT bilkent DOT edu DOT tr
+*/
 
 
 

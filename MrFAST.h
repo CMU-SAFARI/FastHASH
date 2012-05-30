@@ -46,6 +46,7 @@
 #define __MR_FAST__
 
 #include "Reads.h"
+#include <ctype.h>
 
 #define MAP_CHUNKS 15
 #define MAX_CIGAR_SIZE 100
@@ -90,6 +91,7 @@ typedef struct
   char cigar[MAX_CIGAR_SIZE];
   int cigarSize;
   int mdSize;
+  double tprob;
 } BestFullMappingInfo;
 
 typedef struct lc
@@ -124,16 +126,12 @@ extern long long			mappingCnt;
 extern long long			mappedSeqCnt;
 extern long long			completedSeqCnt;
 
-void initFAST(	Read *seqList,
-		int seqListSize,
-		int *samplingLocs,
-		int samplingLocsSize, 
-		char *fileName);
+void initFAST(Read *, int, int *, int, char *);
 
 void initVerifiedLocs();
 void initLookUpTable();
 void initBestMapping();
-void initBestConcordantDiscordant(int readNumber);
+
 
 void finalizeFAST();
 void finalizeBestSingleMapping();
@@ -142,33 +140,16 @@ void finalizeOEAReads(char *);
 
 
 int mapAllSingleEndSeq();
-//void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment, int direction);
-//void mapPairedEndSeqList(unsigned int *l1, int s1, int readNumber, int readSegment, int direction);
 
-void mapPairedEndSeq();
+void generateCigarFromMD(char *, int, char *);
 
-void outputPairedEnd();
-void outputPairedEndDiscPP();
-
-
-void outputPairFullMappingInfo(FILE *fp, int readNumber);
-void setPairFullMappingInfo(int readNumber, FullMappingInfo mi1, FullMappingInfo mi2);
-void setFullMappingInfo(int readNumber, int loc, int dir, int err, int score, char *md, char * refName, char *cigar);
-
-void outputAllTransChromosomal();
-/*
-  void outputTransChromosomal(char *fileName1, char *fileName2, FILE * fp_out);
-*/
-
-void generateSNPSAM(char *matrix, int matrixLength, char *outputSNP);
-void generateCigar(char *matrix, int matrixLength, char *cigar);
-void generateCigarFromMD(char *mistmatch, int mismatchLength, char *cigar);
-
-int msfHashVal(char *seq);
+int msfHashVal(char *);
 
 int backwardEditDistance2SSE2(char *a, int lena, char *b,int lenb);
 int forwardEditDistance2SSE2(char *a, int lena, char *b,int lenb);
 
+double mapProb(int, char *, char *, int, int);
+int mapQ(int);
 int forwardEditDistanceSSE2G(char *a, int lena, char *b,int lenb);
 int backwardEditDistanceSSE2G(char *a, int lena, char *b,int lenb);
 
@@ -200,6 +181,13 @@ int compareEntrySize (const void *a, const void *b);											// fastHASH()
 void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment, int direction,	// fastHASH()
                      int index, key_struct* keys_input, int potential_key_number); 				// fastHASH()
 void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber, int readSegment, int direction,// fastHASH()
-                       int index, key_struct* keys_input, int potential_key_number); 			// fastHASH()
+                       int index, key_struct* keys_input, int potential_key_number); 			// fastHASH(
+void mapPairedEndSeq();
+void outputPairedEnd();
+void setFullMappingInfo(int readNumber, int loc, int dir, int err, int score,
+			char *md, char * refName, char *cigar);
+
+void outputAllTransChromosomal(int flag);
+void outputPairedEndDiscPP();
 
 #endif

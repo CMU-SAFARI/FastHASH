@@ -47,7 +47,7 @@
 #include <zlib.h>
 
 #define SEQ_MAX_LENGTH		1000			// Seq Max Length
-#define CONTIG_OVERLAP		200 		// No. of characters overlapped between contings
+#define CONTIG_OVERLAP		2000 		// No. of characters overlapped between contings
 #define CONTIG_NAME_SIZE	200			// Contig name max size
 #define FILE_NAME_LENGTH	400			// Filename Max Length
 #define DISCORDANT_CUT_OFF	800
@@ -72,6 +72,8 @@ extern int				maxDiscordantOutput;
 extern int				uniqueMode;
 extern int				indexingMode;
 extern int				searchingMode;
+extern int				pairedEndModeMP;
+extern int				pairedEndModePE;
 extern int				pairedEndMode;
 extern int				pairedEndDiscordantMode;
 extern int 				transChromosomal;

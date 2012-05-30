@@ -50,7 +50,7 @@
 
 
 unsigned short 			SEQ_LENGTH = 0;
-long long				memUsage = 0;
+long long		       	memUsage = 0;
 /**********************************************/
 FILE *fileOpen(char *fileName, char *mode)
 {
@@ -135,7 +135,7 @@ void reMem(void *ptr, size_t oldsize, size_t newsize)
 {
   ptr = realloc(ptr, newsize);
   if (ptr == NULL){
-    fprintf(stderr, "Cannot reallocate memory. Currently addressed memory = %0.2f MB, requested memory = %0.2f MB.\nCheck the available main memory, and if you have user limits (ulimit -v).\n", getMemUsage(), (float)(newsize/1048576.0));
+    fprintf(stderr, "Cannot reallocate memory. Currently addressed memory = %0.2f MB, requested memory = %0.2f MB.\nCheck the available main memory, and if you have user limits (ulimit -v).\n", getMemUsage(), (double)newsize);
     exit(0);
   }
   memUsage+=newsize-oldsize;

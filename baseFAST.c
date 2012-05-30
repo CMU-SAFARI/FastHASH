@@ -54,7 +54,7 @@
 #include "HashTable.h"
 #include "MrFAST.h"
 
-char 				*versionNumber = "2.1";			// Current Version
+char 				*versionNumber = "3.0";			// Current Version
 unsigned char		seqFastq;
 
 int main(int argc, char *argv[])
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
       initOutput(outputFileName, outCompressed);
 
       fprintf(stdout, "-----------------------------------------------------------------------------------------------------------\n");
-      fprintf(stdout, "| %15s | %15s | %15s | %15s | %15s %15s |\n","Genome Name","Loading Time", "Mapping Time", "Memory Usage(M)","Total Mappings","Mapped reads");
+      fprintf(stdout, "| %15s | %15s | %15s | %15s | %15s %15s |\n","Seq. Name","Loading Time", "Mapping Time", "Memory Usage(M)","Total Mappings","Mapped reads");
       fprintf(stdout, "-----------------------------------------------------------------------------------------------------------\n");
 
       /********************************
@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
 	{
 	  initLookUpTable();
 	  if(pairedEndMode)
-	    initBestConcordantDiscordant(seqListSize);
+	    initBestMapping(seqListSize);
 
 	  if (!initLoadingHashTable(fileName[1]))
 	    {
@@ -367,5 +367,5 @@ int main(int argc, char *argv[])
       freeMem(prevGen, CONTIG_NAME_SIZE);
     }
 
-  return 1;
+  return 0;
 }

@@ -80,7 +80,7 @@ void (*output)(SAM map);
 void outputSAM(FILE *fp, SAM map);
 
 FILE * getOutputFILE();
-void SAMheaderTX(FILE *);
+void SAMheaderTX(FILE *, int);
 void SAMheaderGZ(gzFile);
 
 #endif
