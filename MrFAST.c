@@ -5282,7 +5282,6 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
 		     int potential_key_number) {
   int j = 0;
   int z = 0;
-  int k = 0;
   int *locs = (int *) l1;
   char *_tmpSeq, *_tmpQual;
   char rqual[SEQ_LENGTH + 1];
@@ -5354,16 +5353,7 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
     int err = -1;
     map_location = 0;
 
-    
-    
-    /*
-    genLoc = genLoc - _msf_samplingLocs[o];
-    leftSeqLength = 0;
-    middleSeqLength = 0;
-    a = leftSeqLength + middleSeqLength;
-    rightSeqLength = SEQ_LENGTH - a;
-    */
-    
+        
     leftSeqLength = _msf_samplingLocs[o];
     middleSeqLength = WINDOW_SIZE;
     a = leftSeqLength + middleSeqLength;
@@ -5406,28 +5396,12 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
       generateSNPSAM(matrix, strlen(matrix), editString);
       generateCigar(matrix, strlen(matrix), cigar);
 
-      for(k = 0; k < readSegment+1; k++) 
-	{
-	  for(j = -errThreshold ; j <= errThreshold; j++) 
-	    {
-	      if(genLoc-(k*(_msf_samplingLocs[1]-_msf_samplingLocs[0]))+j >= _msf_refGenBeg &&
-		 genLoc-(k*(_msf_samplingLocs[1]-_msf_samplingLocs[0]))+j <= _msf_refGenEnd)
-		_msf_verifiedLocs[genLoc-(k*(_msf_samplingLocs[1]-_msf_samplingLocs[0]))+j] = readId;
-	    }
-	} 
-      
-	/*      
       for (j = -errThreshold; j <= errThreshold; j++) {
-	//		if(genLoc-(readSegment*WINDOW_SIZE)+j >= _msf_refGenBeg &&
-	//			genLoc-(readSegment*WINDOW_SIZE)+j <= _msf_refGenEnd)
-	//			_msf_verifiedLocs[genLoc-(readSegment*WINDOW_SIZE)+j] = readId;
-	if (genLoc + j >= _msf_refGenBeg
-	    && genLoc + j <= _msf_refGenEnd)
-	  _msf_verifiedLocs[genLoc + j] = readId;
-	  }*/
-	
-
-
+	if(genLoc-(readSegment*WINDOW_SIZE)+j >= _msf_refGenBeg &&
+	   genLoc-(readSegment*WINDOW_SIZE)+j <= _msf_refGenEnd)
+	  _msf_verifiedLocs[genLoc-(readSegment*WINDOW_SIZE)+j] = readId;
+      }
+      
 
       if (!bestMode) {
 	mappingCnt++;
@@ -5677,16 +5651,6 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
     int err = -1;
     map_location = 0;
 
-    // Test for Backward ED calcultaion	--------------------------
-    /* CALKAN: disabled
-    genLoc = genLoc - leftSeqLength;
-    leftSeqLength = 0;
-    middleSeqLength = 0;
-    a = leftSeqLength + middleSeqLength;
-    rightSeqLength = SEQ_LENGTH - a;
-    */
-    // -----------------------------------------------------------
-
     if (skip_edit_distance == 0) {
       if (errThreshold == 2) {
 	err = verifySingleEndEditDistance2(genLoc, _tmpSeq,
@@ -5712,20 +5676,13 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
     if (err != -1) {
       int i = 0;
       int j = 0;
-      //			int k = 0;
-      //			for (k = 0; k < readSegment + 1; k++) {
+
       for (j = -errThreshold; j <= errThreshold; j++) {
-	//	if(genLoc-(readSegment*WINDOW_SIZE)+j >= _msf_refGenBeg &&
-	//	   genLoc-(readSegment*WINDOW_SIZE)+j <= _msf_refGenEnd) {
-	//		_msf_verifiedLocs[genLoc-(readSegment*WINDOW_SIZE)+j] = readId;
-	//	}
-	if (genLoc + j >= _msf_refGenBeg
-	    && genLoc + j <= _msf_refGenEnd) {
-	  _msf_verifiedLocs[genLoc + j] = readId;
-	}
+	if(genLoc-(readSegment*WINDOW_SIZE)+j >= _msf_refGenBeg &&
+	   genLoc-(readSegment*WINDOW_SIZE)+j <= _msf_refGenEnd)
+	  _msf_verifiedLocs[genLoc-(readSegment*WINDOW_SIZE)+j] = readId;
       }
-      //			}
-      //----------------------------------------------------
+      
       generateSNPSAM(matrix, strlen(matrix), editString);
       generateCigar(matrix, strlen(matrix), cigar);
       MappingLocations *parent = NULL;
@@ -7203,13 +7160,12 @@ void outputPairedEndDiscPP() {
       }
 
       _msf_seqList[rNo * 2].hits[0] = 2;
-      if (event != 'E')
-	fprintf(out,
-		"%s\t%s\t%d\t%d\t%c\t%d\t%d\t%c\t%c\t%d\t%0.0f\t%e\n",
-		_msf_seqList[rNo * 2].name, genName, loc1,
-		(loc1 + SEQ_LENGTH - 1), dir1, loc2,
-		(loc2 + SEQ_LENGTH - 1), dir2, event, (err1 + err2),
-		lsc, sc1 * sc2);
+      fprintf(out,
+	      "%s\t%s\t%d\t%d\t%c\t=\t%d\t%d\t%c\t%c\t%d\t%0.0f\t%e\n",
+	      _msf_seqList[rNo * 2].name, genName, loc1,
+	      (loc1 + SEQ_LENGTH - 1), dir1, loc2,
+	      (loc2 + SEQ_LENGTH - 1), dir2, event, (err1 + err2),
+	      lsc, sc1 * sc2);
 
     }
     flag = fread(&rNo, sizeof(int), 1, in);
