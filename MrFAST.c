@@ -61,6 +61,7 @@
 
 #define MAX_REF_SIZE	18
 
+double binomial_coefficient(int n, int k);
 float calculateScore(int index, char *seq, char *qual, char *md);
 unsigned char mrFAST = 1;
 char *versionNumberF = "0.0";
@@ -6783,6 +6784,20 @@ float str2int(char *str, int index1, int index2) {
   return atol(tmp);
 }
 
+double binomial_coefficient(int n, int k){
+  double ret;
+  int i;
+  ret = 1.0;
+  
+  for (i=0; i<k; i++){
+    ret *= (n - i);
+    ret /= (k - i);
+  }
+ 
+  return ret; 
+
+}
+
 float calculateScore(int index, char *seq, char *qual, char *md) {
   int i;
   int j;
@@ -7165,7 +7180,7 @@ void outputPairedEndDiscPP() {
 	      _msf_seqList[rNo * 2].name, genName, loc1,
 	      (loc1 + SEQ_LENGTH - 1), dir1, loc2,
 	      (loc2 + SEQ_LENGTH - 1), dir2, event, (err1 + err2),
-	      lsc, sc1 * sc2);
+	      lsc, sc1 * sc2 * binomial_coefficient(2 * SEQ_LENGTH, (err1 + err2)));
 
     }
     flag = fread(&rNo, sizeof(int), 1, in);
