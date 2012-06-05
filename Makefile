@@ -15,4 +15,4 @@ $(EXECUTABLE): $(OBJECTS)
 .c.o:
 	$(CC) $(CFLAGS) $< -o $@ 
 clean:
-	rm -f *.o *~ #*
+	rm -f *.o *~ #* mrfast

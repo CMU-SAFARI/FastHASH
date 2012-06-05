@@ -62,7 +62,7 @@
 #define MAX_REF_SIZE	18
 
 double binomial_coefficient(int n, int k);
-float calculateScore(int index, char *seq, char *qual, char *md);
+double calculateScore(int index, char *seq, char *qual, char *md);
 unsigned char mrFAST = 1;
 char *versionNumberF = "0.0";
 
@@ -6340,7 +6340,7 @@ void outputPairedEnd() {
       char l = 0;
 
       //write the OEA data
-      if (_msf_seqHits[i * 2] == 0) {
+      if (_msf_seqHits[i * 2] == 0){
 	for (k = 0;
 	     k < size2 && _msf_oeaMapping[i * 2 + 1] < maxOEAOutput;
 	     k++) {
@@ -6375,7 +6375,7 @@ void outputPairedEnd() {
 	  _msf_oeaMapping[i * 2 + 1]++;
 	}
       }
-      if (_msf_seqHits[i * 2 + 1] == 0) {
+      if (_msf_seqHits[i * 2 + 1] == 0){ 
 	for (j = 0; j < size1 && _msf_oeaMapping[i * 2] < maxOEAOutput;
 	     j++) {
 	  rNo = i * 2;
@@ -6520,10 +6520,8 @@ void outputPairedEnd() {
 		      == mi1[j].err + mi2[k].err
 		      && findNearest(
 				     abs(
-					 bestHitMappingInfo[i * 2
-							    + 1].loc
-					 - bestHitMappingInfo[i
-							      * 2].loc),
+					 bestHitMappingInfo[i * 2 + 1].loc
+					 - bestHitMappingInfo[i * 2].loc),
 				     abs(mi2[k].loc - mi1[j].loc),
 				     meanDistanceMapping) == 0) {
 		    continue;
@@ -6602,8 +6600,7 @@ void outputPairedEnd() {
 		  && findNearest(
 				 abs(
 				     bestHitMappingInfo[i * 2 + 1].loc
-				     - bestHitMappingInfo[i
-							  * 2].loc),
+				     - bestHitMappingInfo[i * 2].loc),
 				 abs(mi1[j].loc - mi2[k].loc),
 				 meanDistanceMapping) == 0) {
 		continue;
@@ -6798,7 +6795,7 @@ double binomial_coefficient(int n, int k){
 
 }
 
-float calculateScore(int index, char *seq, char *qual, char *md) {
+double calculateScore(int index, char *seq, char *qual, char *md) {
   int i;
   int j;
   char *ref;
@@ -6806,7 +6803,7 @@ float calculateScore(int index, char *seq, char *qual, char *md) {
 
   ref = _msf_refGen + index - 1;
   ver = seq;
-  float score = 1;
+  double score = 1;
 
   char tmp[2 * SEQ_MAX_LENGTH];
   int value = 0;
@@ -7119,7 +7116,7 @@ void outputPairedEndDiscPP() {
 
     /* CALKAN: GO OVER THIS VERY CAREFULLY FOR PE vs MP */
 
-    if (_msf_readHasConcordantMapping[rNo] == 0) {
+    if (_msf_readHasConcordantMapping[rNo] == 0 && _msf_discordantMapping[rNo * 2] < maxDiscordantOutput ) {
 
       dir1 = dir2 = 'F';
 
@@ -7180,7 +7177,9 @@ void outputPairedEndDiscPP() {
 	      _msf_seqList[rNo * 2].name, genName, loc1,
 	      (loc1 + SEQ_LENGTH - 1), dir1, loc2,
 	      (loc2 + SEQ_LENGTH - 1), dir2, event, (err1 + err2),
-	      lsc, sc1 * sc2 * binomial_coefficient(2 * SEQ_LENGTH, (err1 + err2)));
+	      lsc, sc1 * sc2);
+      
+      //	      lsc, sc1 * sc2 * binomial_coefficient(2 * SEQ_LENGTH, (err1 + err2)));
 
     }
     flag = fread(&rNo, sizeof(int), 1, in);
@@ -7293,7 +7292,8 @@ void finalizeOEAReads(char *fileName) {
       qual2 = _msf_seqList[rNo - 1].qual;
     }
 
-    if (_msf_seqHits[rNo] != 0
+
+    if (_msf_seqHits[rNo] != 0 && _msf_seqHits[rNo] < maxOEAOutput
 	&& _msf_seqHits[(rNo % 2 == 0) ? rNo + 1 : rNo - 1] == 0) {
       _msf_output.POS = loc1;
       _msf_output.MPOS = 0;
@@ -7333,13 +7333,13 @@ void finalizeOEAReads(char *fileName) {
       _msf_seqList[rNo].hits[0] = -1;
       _msf_seqList[(rNo % 2 == 0) ? rNo + 1 : rNo - 1].hits[0] = -1;
     }
+    else if(_msf_seqHits[rNo] != 0 && _msf_seqHits[(rNo % 2 == 0) ? rNo + 1 : rNo - 1] == 0)
+      {
+	_msf_seqList[rNo].hits[0] = -1;
+	_msf_seqList[(rNo % 2 == 0) ? rNo + 1 : rNo - 1].hits[0] = -1;
+      }
     flag = fread(&rNo, sizeof(int), 1, in);
   }
-
-  /*
-    freeMem(rqual1, SEQ_LENGTH+1);
-    freeMem(rqual2, SEQ_LENGTH+1);
-  */
 
   tmp++;
 

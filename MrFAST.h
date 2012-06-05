@@ -72,7 +72,7 @@ typedef struct
   int loc;
   char dir;
   int err;
-  float score;
+  double score;
   char md[MAX_CIGAR_SIZE];
   char chr[20];
   char cigar[MAX_CIGAR_SIZE];
@@ -85,7 +85,7 @@ typedef struct
   int loc;
   char dir;
   int err;
-  float score;
+  double score;
   char md[MAX_CIGAR_SIZE];
   char chr[20];
   char cigar[MAX_CIGAR_SIZE];
