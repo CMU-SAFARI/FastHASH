@@ -62,7 +62,7 @@
 #define MAX_REF_SIZE	18
 
 double binomial_coefficient(int n, int k);
-double calculateScore(int index, char *seq, char *qual, char *md);
+float calculateScore(int index, char *seq, char *qual, char *md);
 unsigned char mrFAST = 1;
 char *versionNumberF = "0.0";
 
@@ -6795,7 +6795,7 @@ double binomial_coefficient(int n, int k){
 
 }
 
-double calculateScore(int index, char *seq, char *qual, char *md) {
+float calculateScore(int index, char *seq, char *qual, char *md) {
   int i;
   int j;
   char *ref;
@@ -6803,7 +6803,7 @@ double calculateScore(int index, char *seq, char *qual, char *md) {
 
   ref = _msf_refGen + index - 1;
   ver = seq;
-  double score = 1;
+  float score = 1;
 
   char tmp[2 * SEQ_MAX_LENGTH];
   int value = 0;
