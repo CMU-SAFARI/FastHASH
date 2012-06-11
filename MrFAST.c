@@ -6044,6 +6044,7 @@ double mapProb(int readNumber, char *md, char *cigar, int dir, int err){
   double phred = 0.0;
   int errloc = 0;
   int errcnt = 0; //since I cannot calculate deletion base quality
+ 
 
   buf[0] = 0;
 
@@ -6087,7 +6088,11 @@ double mapProb(int readNumber, char *md, char *cigar, int dir, int err){
     }
   }
 
-  return pow(10, -1 * (phred / 10));
+  double indel_prob = 1; 
+  if (errcnt != err)
+    indel_prob = 0.0002 * (err - errcnt);
+
+  return pow(10, -1 * (phred / 10)) * indel_prob;
 
 }
 
@@ -6863,8 +6868,10 @@ float calculateScore(int index, char *seq, char *qual, char *md) {
     } else if (tmp[i] == 'I') {
       ver++;
       j++;
+      score *= 0.0003;  // 0.0001 + 0.0002;  0.0001: indel rate in normal human, 0.0002: indel error rate in Illumina
     } else if (tmp[i] == 'D') {
       ref++;
+      score *= 0.0003; // 0.0001 + 0.0002
     }
   }
 
