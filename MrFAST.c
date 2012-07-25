@@ -5460,7 +5460,7 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
 	}
 	
 	if (seqFastq)
-	  bestHitMappingInfo[readNumber].tprob += mapProb(readNumber, editString, cigar, direction, err);
+	  bestHitMappingInfo[readNumber].tprob += mapProb(readNumber, editString, direction, err);
 	
 	if(err  < bestHitMappingInfo[readNumber].err || bestHitMappingInfo[readNumber].loc == -1)
 	  {
@@ -5678,12 +5678,16 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
       int i = 0;
       int j = 0;
 
+      /* calkan counter */
+      mappingCnt++;
+     
+
       for (j = -errThreshold; j <= errThreshold; j++) {
 	if(genLoc-(readSegment*WINDOW_SIZE)+j >= _msf_refGenBeg &&
 	   genLoc-(readSegment*WINDOW_SIZE)+j <= _msf_refGenEnd)
 	  _msf_verifiedLocs[genLoc-(readSegment*WINDOW_SIZE)+j] = readId;
       }
-      
+
       generateSNPSAM(matrix, strlen(matrix), editString);
       generateCigar(matrix, strlen(matrix), cigar);
       MappingLocations *parent = NULL;
@@ -5871,6 +5875,8 @@ void mapPairedEndSeq() {
   _msf_maxLSize += lmax;
   _msf_maxRSize += rmax;
   tmpOut++;
+
+
   fclose(out1);
   fclose(out2);
 }
@@ -6035,12 +6041,12 @@ void finalizeBestConcordantDiscordant() {
   freeMem(bestHitMappingInfo, _msf_seqListSize * sizeof(FullMappingInfo));
 }
 
-double mapProb(int readNumber, char *md, char *cigar, int dir, int err){
+double mapProb(int readNumber, char *md, int dir, int err){
   int i = 0;
   int mdlen = strlen(md);
-  //int cigarlen = strlen(cigar);
   char buf[MAX_CIGAR_SIZE];
   int j = 0;
+
   double phred = 0.0;
   int errloc = 0;
   int errcnt = 0; //since I cannot calculate deletion base quality
@@ -6056,8 +6062,8 @@ double mapProb(int readNumber, char *md, char *cigar, int dir, int err){
     else if (isalpha(md[i])){
       /* mismatch */
       errcnt++;
-      buf[j]=0; 
-      if (j!=0)
+      buf[j] = '\0'; 
+      if (j != 0)
 	errloc += atoi(buf);
       else if (i!=0)
 	errloc++;
@@ -6068,23 +6074,22 @@ double mapProb(int readNumber, char *md, char *cigar, int dir, int err){
 	phred += (double) (_msf_seqList[readNumber].qual[SEQ_LENGTH-errloc-1] - 33);
       else
 	phred += (double) (_msf_seqList[readNumber].qual[errloc] - 33);
-      
 
       i++;
     }
+    
     else if (md[i]=='^'){
-      /* insertion to the read / deletion from reference */
+      /* insertion to the read / deletion from reference  */
+      if (j!=0){
+	buf[j]=0;
+	errloc += atoi(buf);
+	buf[0] = 0;
+      }
       j=0; 
       i++; /* pass ^ */
       while (isalpha(md[i++])) j++;
       errloc += j;
-      errcnt++;
-	
-      if (dir)
-	phred += (double) (_msf_seqList[readNumber].qual[SEQ_LENGTH-errloc-1] - 33);
-      else
-	phred += (double) (_msf_seqList[readNumber].qual[errloc] - 33);
-
+      j = 0;
     }
   }
 
@@ -6101,7 +6106,7 @@ int mapQ(int readNumber)
   int mapqual;
   double mapprob;
 
-  mapprob = mapProb(readNumber, bestHitMappingInfo[readNumber].md, bestHitMappingInfo[readNumber].cigar, 
+  mapprob = mapProb(readNumber, bestHitMappingInfo[readNumber].md, 
 		    bestHitMappingInfo[readNumber].dir, bestHitMappingInfo[readNumber].err); 
 
   if (mapprob == bestHitMappingInfo[readNumber].tprob)
@@ -6454,15 +6459,16 @@ void outputPairedEnd() {
     /* CALKAN MAPQ FOR PE */
     if (seqFastq){
       for (j = 0; j < size1; j++) {
-	if (mi1[j].err != 0)
-	  bestHitMappingInfo[i*2].tprob += mapProb(i*2, mi1[j].md, mi1[j].cigar, mi1[j].dir, mi1[j].err);
+	if (mi1[j].err != 0){
+	  bestHitMappingInfo[i*2].tprob += mapProb(i*2, mi1[j].md, mi1[j].dir, mi1[j].err);
+	}
       }
       for (k = 0; k < size2; k++) {
-	if (mi2[k].err != 0)
-	  bestHitMappingInfo[i*2+1].tprob += mapProb((i*2+1), mi2[k].md, mi2[k].cigar, mi2[k].dir, mi2[k].err);
+	if (mi2[k].err != 0){
+	  bestHitMappingInfo[i*2+1].tprob += mapProb((i*2+1), mi2[k].md, mi2[k].dir, mi2[k].err);
+	}
       }
     }
-    
     
     if (pairedEndDiscordantMode) {
       for (j = 0; j < size1; j++) {
@@ -6773,6 +6779,15 @@ void outputPairedEnd() {
   freeMem(mi2, sizeof(FullMappingInfo) * _msf_maxRSize);
 
   _msf_openFiles = 0;
+
+  /* calkan counter */
+  int unmappedCnt = 0;
+  for (i = 0; i < _msf_seqListSize; i++) {
+    if (_msf_seqHits[i] == 0) unmappedCnt++;
+  }
+
+  mappedSeqCnt = _msf_seqListSize - unmappedCnt; 
+
 }
 
 /**********************************************/

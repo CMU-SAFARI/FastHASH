@@ -167,6 +167,7 @@ int main(int argc, char *argv[])
 
 	  do
 	    {
+
 	      flag = loadHashTable ( &tmpTime, errThreshold);  			// Reading a fragment
 	      curGen = getRefGenomeName();
 
@@ -175,6 +176,7 @@ int main(int argc, char *argv[])
 		{
 		  sprintf(prevGen, "%s", curGen);
 		}
+
 
 	      if ( !flag || strcmp(prevGen, curGen)!=0)
 		{
@@ -249,6 +251,7 @@ int main(int argc, char *argv[])
 
 	  do
 	    {
+
 	      flag = loadHashTable ( &tmpTime , errThreshold);  			// Reading a fragment
 	      curGen = getRefGenomeName();
 
@@ -294,9 +297,7 @@ int main(int argc, char *argv[])
 
 	      loadingTime += tmpTime;
 	      lstartTime = getTime();
-					
 	      initFAST(seqList, seqListSize, samplingLocs, samplingLocsSize, fileName[0]);
-						
 	      mapPairedEndSeq();
 					
 	      mappingTime += getTime() - lstartTime;

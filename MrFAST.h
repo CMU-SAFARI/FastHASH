@@ -148,7 +148,7 @@ int msfHashVal(char *);
 int backwardEditDistance2SSE2(char *a, int lena, char *b,int lenb);
 int forwardEditDistance2SSE2(char *a, int lena, char *b,int lenb);
 
-double mapProb(int, char *, char *, int, int);
+double mapProb(int, char *, int, int);
 int mapQ(int);
 int forwardEditDistanceSSE2G(char *a, int lena, char *b,int lenb);
 int backwardEditDistanceSSE2G(char *a, int lena, char *b,int lenb);
