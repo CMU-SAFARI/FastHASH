@@ -439,7 +439,7 @@ int backwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb)
 
       if (flag == 0)
 	return -1;
-
+      /* farhad: lenb1 */
       if (i == 2 * lenb - e) {
 	tmp = _mm_srli_si128(R0,2);
 	for (k = 0; k < e - 2; k++)
@@ -459,7 +459,7 @@ int backwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb)
       R1 = _mm_min_epi16(R0 + Side2, R1 + Diag);
 
       R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down2);
-
+      /* farhad: lenb2 */
       if (i >= 2 * lenb - e) {
 	tmp = _mm_srli_si128(R1,2);
 	for (k = 0; k < e - 1; k++)
@@ -1954,6 +1954,18 @@ int forwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb) {
 	  flag = 1;
 	tmp = _mm_srli_si128(tmp,2);
       }
+
+      /* Farhad 28/02/2012 */
+      if (_mm_extract_epi16(R1,0) <= e)
+	flag = 1;
+
+      tmp = _mm_srli_si128(R1,2);
+      for (j = 0; j < e - 1; j++) {
+	if (_mm_extract_epi16(tmp,0) <= e)
+	  flag = 1;
+	tmp = _mm_srli_si128(tmp,2);
+      }
+      /* Farhad 28/02/2012 end */
 
       if (flag == 0)
 	return -1;
