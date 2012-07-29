@@ -437,6 +437,15 @@ int backwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb)
 	tmp = _mm_srli_si128(tmp,2);
       }
 
+      if (_mm_extract_epi16(R1,1) <= e)
+	flag = 1;
+      tmp = _mm_srli_si128(R1,2);
+      for (j = 0; j < e-1; j++) {
+	if (_mm_extract_epi16(tmp,0) <= e)
+	  flag = 1;
+	tmp = _mm_srli_si128(tmp,2);
+      }
+
       if (flag == 0)
 	return -1;
       /* farhad: lenb1 */
