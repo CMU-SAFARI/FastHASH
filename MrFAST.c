@@ -4446,6 +4446,11 @@ int verifySingleEndEditDistanceExtension(int refIndex, char *lSeq,
 
   totalError = error + error1;
 
+  /* Farhad 08/07/2012 */
+  if(totalError > errThreshold)
+    return -1;
+  /* Farhad 08/07/2012 */
+
   if (debugMode && totalError != error2 + error3) {
     for (i = 0; i < lSeqLength; i++)
       printf("%c", *(tempref - 1 - i));
@@ -4480,7 +4485,8 @@ int verifySingleEndEditDistanceExtension(int refIndex, char *lSeq,
   directionIndex = rSeqLength;
   rIndex = minIndex2;
 
-  while (directionIndex != 0 || rIndex != 0) {
+  /* Farhad 08/07/2012 */
+  while (directionIndex >= 0 || rIndex >= 0) {
     if (directionIndex - rIndex == errThreshold) {
       if (scoreF[directionIndex][rIndex]
 	  - scoreF[directionIndex - 1][rIndex] == 1) {
