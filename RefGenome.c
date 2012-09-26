@@ -86,14 +86,26 @@ int loadRefGenome(char **refGen, char **refGenName, int *refGenOff)
   int returnVal = 0;
   int actualSize=0;
   int size;
+  char *tmp;
 	
   // New Contig 
   if (!_rg_contGen)
     {
       size = 0;
-      if (fgets(_rg_name, SEQ_MAX_LENGTH, _rg_fp) == 0){
-	fprintf(stderr, "Error in reading reference genome name.\n");
-      }
+      tmp = fgets(_rg_name, SEQ_MAX_LENGTH, _rg_fp);
+
+      if (tmp==NULL)
+	fprintf(stderr, "Error reading the contig.\n");
+      
+      int k;
+      for (k=0; k<strlen(_rg_name);k++)
+	{
+	  if (_rg_name[k] == ' ')
+	    {
+	      _rg_name[k]='\0';
+	      break;
+	    }
+	}
     }
   else
     {
