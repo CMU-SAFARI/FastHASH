@@ -250,8 +250,9 @@ void SAMheaderTX(FILE *outfp, int check)
 
   sprintf(fainame, "%s.fai",fileName[0]);
   fp = fopen(fainame, "r");
+
   if (fp != NULL){
-    if (pairedEndMode)
+    if (pairedEndMode && check != 0)
       fprintf(outfp, "@HD\tVN:1.4\tSO:queryname\n");
     else
       fprintf(outfp, "@HD\tVN:1.4\tSO:unsorted\n");
