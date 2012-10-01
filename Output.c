@@ -251,8 +251,10 @@ void SAMheaderTX(FILE *outfp, int check)
   sprintf(fainame, "%s.fai",fileName[0]);
   fp = fopen(fainame, "r");
   if (fp != NULL){
-
-    fprintf(outfp, "@HD\tVN:1.4\tSO:coordinate\n");
+    if (pairedEndMode)
+      fprintf(outfp, "@HD\tVN:1.4\tSO:queryname\n");
+    else
+      fprintf(outfp, "@HD\tVN:1.4\tSO:unsorted\n");
     
     while (fscanf(fp, "%s\t%d\t", chrom, &chromlen) > 0){
       ret = fgets(rest, FILE_NAME_LENGTH, fp);
@@ -286,7 +288,10 @@ void SAMheaderGZ(gzFile outgzfp)
   fp = fopen(fainame, "r");
 
   if (fp != NULL){
-    gzprintf(outgzfp, "@HD\tVN:1.4\tSO:coordinate\n");
+    if (pairedEndMode)
+      gzprintf(outgzfp, "@HD\tVN:1.4\tSO:queryname\n");
+    else
+      gzprintf(outgzfp, "@HD\tVN:1.4\tSO:unsorted\n");
 
     while (fscanf(fp, "%s\t%d\t", chrom, &chromlen) > 0){
       ret = fgets(rest, FILE_NAME_LENGTH, fp); 
