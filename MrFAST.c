@@ -2907,7 +2907,7 @@ void initFAST(Read *seqList, int seqListSize, int *samplingLocs,
   if (_msf_refGenOffset == 0) {
     _msf_refGenBeg = 1;
   } else {
-    _msf_refGenBeg = CONTIG_OVERLAP - SEQ_LENGTH + 2;
+    _msf_refGenBeg = CONTIG_OVERLAP - SEQ_LENGTH + 2 + errThreshold;
   }
   _msf_refGenEnd = _msf_refGenLength - SEQ_LENGTH + 1;
 
@@ -5347,21 +5347,23 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
 
     genLoc = locs[z];
 
-    //hxin: If the read is at the beginning of the contig, and there are insersions
+    //hxin: If the read is at the beginning of the contig, and there are insertions
     //hxin: then genLoc - _msf_sampleingLoc[0] might be smaller than _refGenBeg
     int realLoc = genLoc - _msf_samplingLocs[o];
-
+    
     if (genLoc < _msf_samplingLocs[o]
-       || genLoc - _msf_samplingLocs[o] < _msf_refGenBeg
-       || genLoc - _msf_samplingLocs[o] > _msf_refGenEnd) {
+	|| genLoc - _msf_samplingLocs[o] < _msf_refGenBeg
+	|| genLoc - _msf_samplingLocs[o] > _msf_refGenEnd) {
       if (genLoc - _msf_samplingLocs[o] > _msf_refGenBeg - errThreshold)
-        realLoc = _msf_refGenBeg;
+	realLoc =  _msf_refGenBeg;
       else
-        continue;
+	continue;
     }
 
-      if (_msf_verifiedLocs[realLoc] == readId)
-        continue;
+    
+    if (_msf_verifiedLocs[realLoc] == readId)
+      continue;
+
     // Adjacency Filtering Start ---------------------------------
     int skip_edit_distance = 0;
     int diff_num = 0;
@@ -5435,8 +5437,9 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
 
       for (j = -errThreshold; j <= errThreshold; j++) {
 	if(genLoc-(readSegment*WINDOW_SIZE)+j >= _msf_refGenBeg &&
-	   genLoc-(readSegment*WINDOW_SIZE)+j <= _msf_refGenEnd)
-	  _msf_verifiedLocs[genLoc-(readSegment*WINDOW_SIZE)+j] = readId;
+	   genLoc-(readSegment*WINDOW_SIZE)+j <= _msf_refGenEnd){
+	    _msf_verifiedLocs[genLoc-(readSegment*WINDOW_SIZE)+j] = readId;
+	}
       }
       
 
@@ -5654,11 +5657,29 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
     a = leftSeqLength + middleSeqLength;
     rightSeqLength = SEQ_LENGTH - a;
 
+    //hxinPE: If the read is at the beginning of the contig, and there are insertions
+    //hxinPE: then genLoc - _msf_sampleingLoc[0] might be smaller than _refGenBeg
+    int realLoc = genLoc - _msf_samplingLocs[o];
+    
+    if (genLoc < _msf_samplingLocs[o]
+	|| genLoc - _msf_samplingLocs[o] < _msf_refGenBeg
+	|| genLoc - _msf_samplingLocs[o] > _msf_refGenEnd) {
+      if (genLoc - _msf_samplingLocs[o] > _msf_refGenBeg - errThreshold)
+	realLoc =  _msf_refGenBeg;
+      else
+	continue;
+    }
+
+    if (_msf_verifiedLocs[realLoc] == readId || _msf_verifiedLocs[realLoc] == -readId )
+      continue;
+
+    /*
     if (genLoc - leftSeqLength < _msf_refGenBeg
 	|| genLoc + rightSeqLength + middleSeqLength > _msf_refGenEnd
 	|| _msf_verifiedLocs[genLoc - _msf_samplingLocs[o]] == readId
 	|| _msf_verifiedLocs[genLoc - _msf_samplingLocs[o]] == -readId)
       continue;
+    */
 
     // Adjacency Filtering Start ---------------------------------
     int skip_edit_distance = 0;
@@ -5716,8 +5737,7 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
 
       /* calkan counter */
       mappingCnt++;
-     
-
+   
       for (j = -errThreshold; j <= errThreshold; j++) {
 	if(genLoc-(readSegment*WINDOW_SIZE)+j >= _msf_refGenBeg &&
 	   genLoc-(readSegment*WINDOW_SIZE)+j <= _msf_refGenEnd)

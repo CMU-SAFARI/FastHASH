@@ -252,7 +252,7 @@ void SAMheaderTX(FILE *outfp, int check)
   fp = fopen(fainame, "r");
 
   if (fp != NULL){
-    fprintf(outfp, "@HD\tVN:1.4\tSO:unsorted\n");
+    fprintf(outfp, "@HD\tVN:1.4\tSO:unknown\n");
     
     while (fscanf(fp, "%s\t%d\t", chrom, &chromlen) > 0){
       ret = fgets(rest, FILE_NAME_LENGTH, fp);
@@ -286,7 +286,7 @@ void SAMheaderGZ(gzFile outgzfp)
   fp = fopen(fainame, "r");
 
   if (fp != NULL){
-    gzprintf(outgzfp, "@HD\tVN:1.4\tSO:unsorted\n");
+    gzprintf(outgzfp, "@HD\tVN:1.4\tSO:unknown\n");
 
     while (fscanf(fp, "%s\t%d\t", chrom, &chromlen) > 0){
       ret = fgets(rest, FILE_NAME_LENGTH, fp); 
