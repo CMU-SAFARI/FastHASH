@@ -64,7 +64,7 @@
 double binomial_coefficient(int n, int k);
 float calculateScore(int index, char *seq, char *qual, char *md);
 unsigned char mrFAST = 1;
-char *versionNumberF = "0.1";
+char *versionNumberF = "0.2";
 
 long long verificationCnt = 0;
 long long mappingCnt = 0;
@@ -5657,10 +5657,11 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
     a = leftSeqLength + middleSeqLength;
     rightSeqLength = SEQ_LENGTH - a;
 
+
+    /*    
     //hxinPE: If the read is at the beginning of the contig, and there are insertions
     //hxinPE: then genLoc - _msf_sampleingLoc[0] might be smaller than _refGenBeg
     int realLoc = genLoc - _msf_samplingLocs[o];
-    
     if (genLoc < _msf_samplingLocs[o]
 	|| genLoc - _msf_samplingLocs[o] < _msf_refGenBeg
 	|| genLoc - _msf_samplingLocs[o] > _msf_refGenEnd) {
@@ -5672,14 +5673,15 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
 
     if (_msf_verifiedLocs[realLoc] == readId || _msf_verifiedLocs[realLoc] == -readId )
       continue;
+    */
 
-    /*
+    
     if (genLoc - leftSeqLength < _msf_refGenBeg
 	|| genLoc + rightSeqLength + middleSeqLength > _msf_refGenEnd
 	|| _msf_verifiedLocs[genLoc - _msf_samplingLocs[o]] == readId
 	|| _msf_verifiedLocs[genLoc - _msf_samplingLocs[o]] == -readId)
       continue;
-    */
+    
 
     // Adjacency Filtering Start ---------------------------------
     int skip_edit_distance = 0;
