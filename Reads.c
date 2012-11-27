@@ -279,7 +279,15 @@ int readAllReads(char *fileName1,
 	  readSecondSeq(name2);
 	  readSecondSeq(seq2);
 	  name2[strlen(name2)-1] = '\0';
+			for (i=0; i<strlen(name2);i++)
+			{
+				if (name2[i] == ' ')
+				{
+					name2[i] = '\0';
+					break;
+				}
 			
+			}
 
 	  if ( *fastq )
 	    {
@@ -360,7 +368,7 @@ int readAllReads(char *fileName1,
 	  list[seqCnt].readNumber = seqCnt;			
 
 	  reverseComplement(seq1, rseq1, _mtmp);
-	  rseq1[_mtmp] =  '\0';
+	  //rseq1[_mtmp] =  '\0';
 	  int i;
 
 	  list[seqCnt].hits[0] = 0;
@@ -371,9 +379,9 @@ int readAllReads(char *fileName1,
 	      list[seqCnt].rseq[i] = rseq1[i] ;
 	      list[seqCnt].qual[i] = qual1[i];
 	    }
-		
-			
-	  //MAKE HASH VALUE
+	list[seqCnt].rseq[_mtmp]=list[seqCnt].qual[_mtmp]='\0';	
+	
+  //MAKE HASH VALUE
 	  short code = 0;
 
 	  for(i=0; i < 4; i++)
@@ -440,7 +448,7 @@ int readAllReads(char *fileName1,
 	  list[seqCnt].readNumber = seqCnt;
 
 	  reverseComplement(seq1, rseq1, _mtmp);
-	  rseq1[_mtmp] =  '\0';
+	  //rseq1[_mtmp] =  '\0';
 	  int i;
 
 	  list[seqCnt].hits[0] = 0;
@@ -454,6 +462,7 @@ int readAllReads(char *fileName1,
 
 
 	  name1[tmplen]='\0';
+	  list[seqCnt].rseq[_mtmp]=list[seqCnt].qual[_mtmp]='\0';
 
 	  //MAKE HASH VALUE
 	  short code = 0;
@@ -511,7 +520,7 @@ int readAllReads(char *fileName1,
 	  list[seqCnt].readNumber = seqCnt;
 
 	  reverseComplement(seq2, rseq2, _mtmp);
-	  rseq2[_mtmp] =  '\0';
+	  //rseq2[_mtmp] =  '\0';
 
 	  list[seqCnt].hits[0] = 0;
 
@@ -524,6 +533,7 @@ int readAllReads(char *fileName1,
 
 
 	  name2[tmplen]='\0';
+	  list[seqCnt].rseq[_mtmp]=list[seqCnt].qual[_mtmp]='\0';
 
 	  //MAKE HASH VALUE
 	  code = 0;
