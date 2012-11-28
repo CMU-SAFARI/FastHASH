@@ -215,7 +215,19 @@ int readAllReads(char *fileName1,
       err1 = 0;
       err2 = 0;
       readFirstSeq(seq1);
-
+      
+      
+      name1[strlen(name1)-1] = '\0';
+      for (i=0; i<strlen(name1);i++)
+	{
+	  if (name1[i] == ' ')
+	    {
+	      name1[i] = '\0';
+	      break;
+	    }
+	  
+	}
+      
       if (errThreshold == 255){
 	if (cropSize > 0) 
 	  {
@@ -230,8 +242,7 @@ int readAllReads(char *fileName1,
 	fprintf(stdout, "You can override this value using the -e parameter.\n");
       }
 	
-      name1[strlen(name1)-1] = '\0';
-	
+      
       if ( *fastq )
 	{
 	  readFirstSeq(dummy);
@@ -279,16 +290,16 @@ int readAllReads(char *fileName1,
 	  readSecondSeq(name2);
 	  readSecondSeq(seq2);
 	  name2[strlen(name2)-1] = '\0';
-			for (i=0; i<strlen(name2);i++)
-			{
-				if (name2[i] == ' ')
-				{
-					name2[i] = '\0';
-					break;
-				}
-			
-			}
-
+	  for (i=0; i<strlen(name2);i++)
+	    {
+	      if (name2[i] == ' ')
+		{
+		  name2[i] = '\0';
+		  break;
+		}
+	      
+	    }
+	  
 	  if ( *fastq )
 	    {
 	      readSecondSeq(dummy);
