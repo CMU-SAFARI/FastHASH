@@ -64,7 +64,7 @@
 double binomial_coefficient(int n, int k);
 float calculateScore(int index, char *seq, char *qual, char *md);
 unsigned char mrFAST = 1;
-char *versionNumberF = "0.3";
+char *versionNumberF = "0.4";
 
 long long verificationCnt = 0;
 long long mappingCnt = 0;
@@ -4485,8 +4485,8 @@ int verifySingleEndEditDistanceExtension(int refIndex, char *lSeq,
   directionIndex = rSeqLength;
   rIndex = minIndex2;
 
-  /* Farhad 08/07/2012 */
-  while (directionIndex >= 0 || rIndex >= 0) {
+  /* Farhad 29/11/2012 */
+  while (directionIndex > 0 || rIndex > 0) {
     if (directionIndex - rIndex == errThreshold) {
       if (scoreF[directionIndex][rIndex]
 	  - scoreF[directionIndex - 1][rIndex] == 1) {

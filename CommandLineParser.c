@@ -250,8 +250,8 @@ int parseCommandLine (int argc, char *argv[])
 
   if ( searchingMode )
     {
-      CONTIG_SIZE		= 300000000;
-      CONTIG_MAX_SIZE	= 300000000;
+      CONTIG_SIZE	= 330000000;
+      CONTIG_MAX_SIZE	= 330000000;
       
       if (pairedEndModeMP && pairedEndModePE){
 	fprintf(stdout, "ERROR: Use either --pe or --mp, not both. \n");
