@@ -64,7 +64,7 @@
 double binomial_coefficient(int n, int k);
 float calculateScore(int index, char *seq, char *qual, char *md);
 unsigned char mrFAST = 1;
-char *versionNumberF = "0.4";
+char *versionNumberF = "1.0";
 
 long long verificationCnt = 0;
 long long mappingCnt = 0;
@@ -5430,18 +5430,19 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
     } 
     
 
+    for (j = -errThreshold+1; j < errThreshold; j++) {
+      if(genLoc-(readSegment*WINDOW_SIZE)+j >= _msf_refGenBeg &&
+	 genLoc-(readSegment*WINDOW_SIZE)+j <= _msf_refGenEnd){
+	_msf_verifiedLocs[genLoc-(readSegment*WINDOW_SIZE)+j] = readId;
+      }
+    }
+      
+
     if (err != -1) {
 
       generateSNPSAM(matrix, strlen(matrix), editString);
       generateCigar(matrix, strlen(matrix), cigar);
 
-      for (j = -errThreshold; j <= errThreshold; j++) {
-	if(genLoc-(readSegment*WINDOW_SIZE)+j >= _msf_refGenBeg &&
-	   genLoc-(readSegment*WINDOW_SIZE)+j <= _msf_refGenEnd){
-	    _msf_verifiedLocs[genLoc-(readSegment*WINDOW_SIZE)+j] = readId;
-	}
-      }
-      
 
       if (!bestMode) {
 	mappingCnt++;
@@ -5733,18 +5734,20 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
       err = -1;
     }
 
+    int j = 0;
+
+    for (j = -errThreshold+1; j < errThreshold; j++) {
+      if(genLoc-(readSegment*WINDOW_SIZE)+j >= _msf_refGenBeg &&
+	 genLoc-(readSegment*WINDOW_SIZE)+j <= _msf_refGenEnd)
+	_msf_verifiedLocs[genLoc-(readSegment*WINDOW_SIZE)+j] = readId;
+    }
+
     if (err != -1) {
       int i = 0;
-      int j = 0;
 
       /* calkan counter */
       mappingCnt++;
    
-      for (j = -errThreshold; j <= errThreshold; j++) {
-	if(genLoc-(readSegment*WINDOW_SIZE)+j >= _msf_refGenBeg &&
-	   genLoc-(readSegment*WINDOW_SIZE)+j <= _msf_refGenEnd)
-	  _msf_verifiedLocs[genLoc-(readSegment*WINDOW_SIZE)+j] = readId;
-      }
 
       generateSNPSAM(matrix, strlen(matrix), editString);
       generateCigar(matrix, strlen(matrix), cigar);
@@ -5787,9 +5790,10 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
 	sprintf(child->md[_msf_mappingInfo[r].size % MAP_CHUNKS], "%s", editString);
       }
       _msf_mappingInfo[r].size++;
-    } else {
+    } /*
+    else {
       _msf_verifiedLocs[genLoc] = -readId;
-    }
+      }*/
   }
 }
 

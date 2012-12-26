@@ -235,7 +235,7 @@ FILE* getOutputFILE()
   if(_out_fp != NULL)
     return _out_fp;
   else if(_out_gzfp != NULL)
-    return _out_gzfp;
+    return (FILE *)_out_gzfp;
   else
     return NULL;
 }

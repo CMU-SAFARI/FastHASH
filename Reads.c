@@ -621,7 +621,7 @@ int readAllReads(char *fileName1,
       gzclose(_r_gzfp1);
       if ( pairedEnd && fileName2 != NULL)
 	{
-	  gzclose(_r_fp2);
+	  gzclose(_r_gzfp2);
 	}
     }
 
