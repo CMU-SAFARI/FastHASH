@@ -56,7 +56,6 @@
 typedef struct
 {
   int hv;
-  //char hv[50];
   int readNumber;
 } Pair;
 
@@ -74,7 +73,6 @@ typedef struct
   int err;
   float score;
   char md[MAX_CIGAR_SIZE];
-  char chr[20];
   char cigar[MAX_CIGAR_SIZE];
   int cigarSize;
   int mdSize;
@@ -87,7 +85,7 @@ typedef struct
   int err;
   float score;
   char md[MAX_CIGAR_SIZE];
-  char chr[20];
+  char *chr;
   char cigar[MAX_CIGAR_SIZE];
   int cigarSize;
   int mdSize;

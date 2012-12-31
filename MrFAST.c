@@ -59,12 +59,11 @@
 #define min3(a,b,c) ((a)>(b)?(b>c?c:b):(a>c?c:a))
 #define CHARCODE(a) (a=='A' ? 0 : (a=='C' ? 1 : (a=='G' ? 2 : (a=='T' ? 3 : 4))))
 
-#define MAX_REF_SIZE	18
 
 double binomial_coefficient(int n, int k);
 float calculateScore(int index, char *seq, char *qual, char *md);
 unsigned char mrFAST = 1;
-char *versionNumberF = "1.0";
+char *versionNumberF = "1.1";
 
 long long verificationCnt = 0;
 long long mappingCnt = 0;
@@ -127,7 +126,6 @@ int *_msf_oeaMapping;
 int *_msf_discordantMapping;
 
 
-int counter = 0;
 
 int scoreF[SEQ_MAX_LENGTH][SEQ_MAX_LENGTH];
 int scoreB[SEQ_MAX_LENGTH][SEQ_MAX_LENGTH];
@@ -2680,6 +2678,7 @@ void initBestMapping(int totalReadNumber)
   for (i = 0; i < totalReadNumber; i++) {
     bestHitMappingInfo[i].loc = -1;
     bestHitMappingInfo[i].tprob = 0.0; 
+    bestHitMappingInfo[i].chr = NULL;
   }
 }
 
@@ -2739,6 +2738,9 @@ void finalizeBestSingleMapping()
 	  output(_msf_output);
 	}
     }
+  for (i = 0; i < _msf_seqListSize; i++)   
+    if (bestHitMappingInfo[i].chr != NULL)
+      freeMem(bestHitMappingInfo[i].chr, (strlen(bestHitMappingInfo[i].chr)+1));
   freeMem(bestHitMappingInfo, _msf_seqListSize * sizeof(FullMappingInfo));
 }
 /**********************************************/
@@ -5790,10 +5792,7 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
 	sprintf(child->md[_msf_mappingInfo[r].size % MAP_CHUNKS], "%s", editString);
       }
       _msf_mappingInfo[r].size++;
-    } /*
-    else {
-      _msf_verifiedLocs[genLoc] = -readId;
-      }*/
+    } 
   }
 }
 
@@ -6099,7 +6098,9 @@ void finalizeBestConcordantDiscordant() {
   for (i = 0; i < _msf_seqListSize / 2; i++) {
     outputPairFullMappingInfo(NULL, i);
   }
-
+  for (i = 0; i < _msf_seqListSize; i++)   
+    if (bestHitMappingInfo[i].chr != NULL)
+      freeMem(bestHitMappingInfo[i].chr, (strlen(bestHitMappingInfo[i].chr)+1));
   freeMem(bestHitMappingInfo, _msf_seqListSize * sizeof(FullMappingInfo));
 }
 
@@ -6191,6 +6192,14 @@ void setFullMappingInfo(int readNumber, int loc, int dir, int err, int score,
   bestHitMappingInfo[readNumber].score = score;
 
   strncpy(bestHitMappingInfo[readNumber].md, md, strlen(md) + 1);
+
+  if (bestHitMappingInfo[readNumber].chr == NULL)
+    bestHitMappingInfo[readNumber].chr = (char *) getMem(sizeof(char) * (strlen(refName)+1));
+  else if (strlen(bestHitMappingInfo[readNumber].chr) < strlen(refName)){
+    freeMem(bestHitMappingInfo[readNumber].chr, (strlen(bestHitMappingInfo[readNumber].chr)+1));
+    bestHitMappingInfo[readNumber].chr = (char *) getMem(sizeof(char) * (strlen(refName)+1));
+  }
+
   strncpy(bestHitMappingInfo[readNumber].chr, refName, strlen(refName) + 1);
   strncpy(bestHitMappingInfo[readNumber].cigar, cigar, strlen(cigar) + 1);
 }
@@ -6202,7 +6211,15 @@ void setPairFullMappingInfo(int readNumber, FullMappingInfo mi1,
   bestHitMappingInfo[readNumber * 2].dir = mi1.dir;
   bestHitMappingInfo[readNumber * 2].err = mi1.err;
   bestHitMappingInfo[readNumber * 2].score = mi1.score;
-  snprintf(bestHitMappingInfo[readNumber * 2].chr, MAX_REF_SIZE, "%s",
+
+  if (bestHitMappingInfo[readNumber * 2].chr == NULL)
+    bestHitMappingInfo[readNumber * 2].chr = (char *) getMem(sizeof(char) * (strlen(_msf_refGenName)+1));
+  else if (strlen(bestHitMappingInfo[readNumber * 2].chr) < strlen(_msf_refGenName)){
+    freeMem(bestHitMappingInfo[readNumber * 2].chr, (strlen(bestHitMappingInfo[readNumber * 2].chr)+1));
+    bestHitMappingInfo[readNumber * 2].chr = (char *) getMem(sizeof(char) * (strlen(_msf_refGenName)+1));
+  }
+
+  snprintf(bestHitMappingInfo[readNumber * 2].chr, strlen(_msf_refGenName)+1, "%s",
 	   _msf_refGenName);
 
   strncpy(bestHitMappingInfo[readNumber * 2].md, mi1.md, strlen(mi1.md) + 1);
@@ -6214,7 +6231,14 @@ void setPairFullMappingInfo(int readNumber, FullMappingInfo mi1,
   bestHitMappingInfo[readNumber * 2 + 1].err = mi2.err;
   bestHitMappingInfo[readNumber * 2 + 1].score = mi2.score;
 
-  snprintf(bestHitMappingInfo[readNumber * 2 + 1].chr, MAX_REF_SIZE, "%s",
+  if (bestHitMappingInfo[readNumber * 2 + 1].chr == NULL)
+    bestHitMappingInfo[readNumber * 2 + 1].chr = (char *) getMem(sizeof(char) * (strlen(_msf_refGenName)+1));
+  else if (strlen(bestHitMappingInfo[readNumber * 2 + 1].chr) < strlen(_msf_refGenName)){
+    freeMem(bestHitMappingInfo[readNumber * 2 + 1].chr, (strlen(bestHitMappingInfo[readNumber * 2 + 1].chr)+1));
+    bestHitMappingInfo[readNumber * 2 + 1].chr = (char *) getMem(sizeof(char) * (strlen(_msf_refGenName)+1));
+  }
+
+  snprintf(bestHitMappingInfo[readNumber * 2 + 1].chr, strlen(_msf_refGenName)+1, "%s",
 	   _msf_refGenName);
 
   strncpy(bestHitMappingInfo[readNumber * 2 + 1].md, mi2.md,
