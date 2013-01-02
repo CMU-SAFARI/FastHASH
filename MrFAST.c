@@ -2678,7 +2678,7 @@ void initBestMapping(int totalReadNumber)
   for (i = 0; i < totalReadNumber; i++) {
     bestHitMappingInfo[i].loc = -1;
     bestHitMappingInfo[i].tprob = 0.0; 
-    bestHitMappingInfo[i].chr = NULL;
+    bestHitMappingInfo[i].chr = (char *) getMem(MAX_REF_LEN);
   }
 }
 
@@ -2740,7 +2740,8 @@ void finalizeBestSingleMapping()
     }
   for (i = 0; i < _msf_seqListSize; i++)   
     if (bestHitMappingInfo[i].chr != NULL)
-      freeMem(bestHitMappingInfo[i].chr, (strlen(bestHitMappingInfo[i].chr)+1));
+      freeMem(bestHitMappingInfo[i].chr, MAX_REF_LEN);
+  //freeMem(bestHitMappingInfo[i].chr, (strlen(bestHitMappingInfo[i].chr)+1));
   freeMem(bestHitMappingInfo, _msf_seqListSize * sizeof(FullMappingInfo));
 }
 /**********************************************/
@@ -6100,7 +6101,8 @@ void finalizeBestConcordantDiscordant() {
   }
   for (i = 0; i < _msf_seqListSize; i++)   
     if (bestHitMappingInfo[i].chr != NULL)
-      freeMem(bestHitMappingInfo[i].chr, (strlen(bestHitMappingInfo[i].chr)+1));
+      freeMem(bestHitMappingInfo[i].chr, MAX_REF_LEN);
+  //freeMem(bestHitMappingInfo[i].chr, (strlen(bestHitMappingInfo[i].chr)+1));
   freeMem(bestHitMappingInfo, _msf_seqListSize * sizeof(FullMappingInfo));
 }
 
@@ -6193,12 +6195,14 @@ void setFullMappingInfo(int readNumber, int loc, int dir, int err, int score,
 
   strncpy(bestHitMappingInfo[readNumber].md, md, strlen(md) + 1);
 
+  /*
   if (bestHitMappingInfo[readNumber].chr == NULL)
     bestHitMappingInfo[readNumber].chr = (char *) getMem(sizeof(char) * (strlen(refName)+1));
   else if (strlen(bestHitMappingInfo[readNumber].chr) < strlen(refName)){
     freeMem(bestHitMappingInfo[readNumber].chr, (strlen(bestHitMappingInfo[readNumber].chr)+1));
     bestHitMappingInfo[readNumber].chr = (char *) getMem(sizeof(char) * (strlen(refName)+1));
   }
+  */
 
   strncpy(bestHitMappingInfo[readNumber].chr, refName, strlen(refName) + 1);
   strncpy(bestHitMappingInfo[readNumber].cigar, cigar, strlen(cigar) + 1);
@@ -6212,12 +6216,14 @@ void setPairFullMappingInfo(int readNumber, FullMappingInfo mi1,
   bestHitMappingInfo[readNumber * 2].err = mi1.err;
   bestHitMappingInfo[readNumber * 2].score = mi1.score;
 
+  /*
   if (bestHitMappingInfo[readNumber * 2].chr == NULL)
     bestHitMappingInfo[readNumber * 2].chr = (char *) getMem(sizeof(char) * (strlen(_msf_refGenName)+1));
   else if (strlen(bestHitMappingInfo[readNumber * 2].chr) < strlen(_msf_refGenName)){
     freeMem(bestHitMappingInfo[readNumber * 2].chr, (strlen(bestHitMappingInfo[readNumber * 2].chr)+1));
     bestHitMappingInfo[readNumber * 2].chr = (char *) getMem(sizeof(char) * (strlen(_msf_refGenName)+1));
-  }
+    }
+  */
 
   snprintf(bestHitMappingInfo[readNumber * 2].chr, strlen(_msf_refGenName)+1, "%s",
 	   _msf_refGenName);
@@ -6231,12 +6237,14 @@ void setPairFullMappingInfo(int readNumber, FullMappingInfo mi1,
   bestHitMappingInfo[readNumber * 2 + 1].err = mi2.err;
   bestHitMappingInfo[readNumber * 2 + 1].score = mi2.score;
 
+  /*
   if (bestHitMappingInfo[readNumber * 2 + 1].chr == NULL)
     bestHitMappingInfo[readNumber * 2 + 1].chr = (char *) getMem(sizeof(char) * (strlen(_msf_refGenName)+1));
   else if (strlen(bestHitMappingInfo[readNumber * 2 + 1].chr) < strlen(_msf_refGenName)){
     freeMem(bestHitMappingInfo[readNumber * 2 + 1].chr, (strlen(bestHitMappingInfo[readNumber * 2 + 1].chr)+1));
     bestHitMappingInfo[readNumber * 2 + 1].chr = (char *) getMem(sizeof(char) * (strlen(_msf_refGenName)+1));
   }
+  */
 
   snprintf(bestHitMappingInfo[readNumber * 2 + 1].chr, strlen(_msf_refGenName)+1, "%s",
 	   _msf_refGenName);

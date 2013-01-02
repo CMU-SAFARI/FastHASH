@@ -45,7 +45,6 @@
 #define _REF_GENOME_
 
 int		initLoadingRefGenome(char *fileName);
-void	finalizeLoadingRefGenome();
+void            finalizeLoadingRefGenome();
 int		loadRefGenome(char **refGen, char **refGenName, int *refGenOff);
-
 #endif
