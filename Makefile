@@ -8,7 +8,7 @@ EXECUTABLE = mrfast
 
 all: $(SOURCES) $(EXECUTABLE)
 	rm -rf *.o
-		
+
 $(EXECUTABLE): $(OBJECTS) 
 	$(CC) $(OBJECTS) -o $@ $(LDFLAGS) 
 
