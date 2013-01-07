@@ -85,7 +85,7 @@ typedef struct
   int err;
   float score;
   char md[MAX_CIGAR_SIZE];
-  char *chr;
+  char chr[MAX_CIGAR_SIZE];
   char cigar[MAX_CIGAR_SIZE];
   int cigarSize;
   int mdSize;

@@ -98,8 +98,6 @@ int parseCommandLine (int argc, char *argv[])
   int index;
   char *fastaFile = NULL;
   
-  MAX_REF_LEN = 0;
-
   readGroup[0] = 0;
   sampleName[0] = 0;
   libName[0] = 0;

@@ -55,7 +55,6 @@ char *_rg_gen;
 char *_rg_name;
 int _rg_offset;
 int _rg_contGen; 
-int MAX_REF_LEN = 0;
 
 /**********************************************/
 int initLoadingRefGenome(char *fileName)
@@ -160,9 +159,6 @@ int loadRefGenome(char **refGen, char **refGenName, int *refGenOff)
   *refGenName = _rg_name;
   *refGen = _rg_gen;
   
-  if (strlen(_rg_name)+1 > MAX_REF_LEN)
-    MAX_REF_LEN = strlen(_rg_name);
-
   if (_rg_contGen == 1)
     {
       _rg_offset += size-CONTIG_OVERLAP;

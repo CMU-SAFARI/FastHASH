@@ -68,7 +68,6 @@ extern char				*versionNumber;
 extern char				*versionNumberF;
 extern unsigned char	mrFAST;
 
-extern int              MAX_REF_LEN;
 
 extern int				maxOEAOutput;
 extern int				maxDiscordantOutput;

@@ -2682,7 +2682,6 @@ void initBestMapping(int totalReadNumber)
   for (i = 0; i < totalReadNumber; i++) {
     bestHitMappingInfo[i].loc = -1;
     bestHitMappingInfo[i].tprob = 0.0; 
-    bestHitMappingInfo[i].chr = (char *) getMem(MAX_REF_LEN);
   }
 }
 
@@ -2742,10 +2741,6 @@ void finalizeBestSingleMapping()
 	  output(_msf_output);
 	}
     }
-  for (i = 0; i < _msf_seqListSize; i++)   
-    if (bestHitMappingInfo[i].chr != NULL)
-      freeMem(bestHitMappingInfo[i].chr, MAX_REF_LEN);
-  //freeMem(bestHitMappingInfo[i].chr, (strlen(bestHitMappingInfo[i].chr)+1));
   freeMem(bestHitMappingInfo, _msf_seqListSize * sizeof(FullMappingInfo));
 }
 /**********************************************/
@@ -5320,7 +5315,6 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
   int *locs = (int *) l1;
   char *_tmpSeq, *_tmpQual;
   char rqual[SEQ_LENGTH + 1];
-  rqual[SEQ_LENGTH] = '\0';
 
   int genLoc = 0;
   int leftSeqLength = 0;
@@ -5333,6 +5327,9 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
 
   short *_tmpHashValue;
   int key_number = SEQ_LENGTH / WINDOW_SIZE;
+  int realLoc, readId;
+
+  rqual[SEQ_LENGTH] = '\0';
 
   if (direction) {
     reverse(_msf_seqList[readNumber].qual, rqual, SEQ_LENGTH);
@@ -5345,7 +5342,7 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
     _tmpHashValue = _msf_seqList[readNumber].hashValue;
   }
 
-  int readId = 2 * readNumber + direction;
+   readId = 2 * readNumber + direction;
 
   for (z = 0; z < s1; z++) {
     int map_location = 0;
@@ -5356,7 +5353,7 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
 
     //hxin: If the read is at the beginning of the contig, and there are insertions
     //hxin: then genLoc - _msf_sampleingLoc[0] might be smaller than _refGenBeg
-    int realLoc = genLoc - _msf_samplingLocs[o];
+    realLoc = genLoc - _msf_samplingLocs[o];
     
     if (genLoc < _msf_samplingLocs[o]
 	|| genLoc - _msf_samplingLocs[o] < _msf_refGenBeg
@@ -5749,13 +5746,13 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
 	_msf_verifiedLocs[genLoc-(readSegment*WINDOW_SIZE)+j] = readId;
     }
 
+
     if (err != -1) {
       int i = 0;
 
       /* calkan counter */
       mappingCnt++;
    
-
       generateSNPSAM(matrix, strlen(matrix), editString);
       generateCigar(matrix, strlen(matrix), cigar);
       MappingLocations *parent = NULL;
@@ -6103,10 +6100,6 @@ void finalizeBestConcordantDiscordant() {
   for (i = 0; i < _msf_seqListSize / 2; i++) {
     outputPairFullMappingInfo(NULL, i);
   }
-  for (i = 0; i < _msf_seqListSize; i++)   
-    if (bestHitMappingInfo[i].chr != NULL)
-      freeMem(bestHitMappingInfo[i].chr, MAX_REF_LEN);
-  //freeMem(bestHitMappingInfo[i].chr, (strlen(bestHitMappingInfo[i].chr)+1));
   freeMem(bestHitMappingInfo, _msf_seqListSize * sizeof(FullMappingInfo));
 }
 
