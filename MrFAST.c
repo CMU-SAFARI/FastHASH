@@ -67,7 +67,7 @@
 double binomial_coefficient(int n, int k);
 float calculateScore(int index, char *seq, char *qual, char *md);
 unsigned char mrFAST = 1;
-char *versionNumberF = "1.1";
+char *versionNumberF = "0.0";
 
 long long verificationCnt = 0;
 long long mappingCnt = 0;
@@ -5367,6 +5367,22 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
     
     if (_msf_verifiedLocs[realLoc] == readId)
       continue;
+    
+    //Begin of long-K
+    int mergeIdx = 2 * errThreshold + 1 - index;
+    
+    if (mergeIdx < potential_key_number) {
+      if (!searchKey(
+		     genLoc
+		     + (keys_input[mergeIdx].key_number
+			- keys_input[o].key_number) * WINDOW_SIZE,
+		     keys_input[mergeIdx].key_entry,
+		     keys_input[mergeIdx].key_entry_size)) {
+	continue;
+      }
+    }
+    //End of long-K
+    
 
     // Adjacency Filtering Start ---------------------------------
     int skip_edit_distance = 0;
@@ -5376,7 +5392,7 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
       if (ix >= key_number - errThreshold) {
 	break;
       }
-      if (ix != o) {
+      if (ix != o && ix != mergeIdx) { // Changed with long-K
 	if (!searchKey(
 		       genLoc
 		       + (keys_input[ix].key_number
@@ -5686,7 +5702,23 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
 	|| _msf_verifiedLocs[genLoc - _msf_samplingLocs[o]] == readId
 	|| _msf_verifiedLocs[genLoc - _msf_samplingLocs[o]] == -readId)
       continue;
+   
+    //Begin of long-K
+    int mergeIdx = 2 * errThreshold + 1 - index;
     
+    if (mergeIdx < potential_key_number) {
+      if (!searchKey(
+		     genLoc
+		     + (keys_input[mergeIdx].key_number
+			- keys_input[o].key_number) * WINDOW_SIZE,
+		     keys_input[mergeIdx].key_entry,
+		     keys_input[mergeIdx].key_entry_size)) {
+	continue;
+      }
+    }
+    //End of long-K
+
+
 
     // Adjacency Filtering Start ---------------------------------
     int skip_edit_distance = 0;
@@ -5696,7 +5728,7 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
       if (ix >= key_number - errThreshold) {
 	break;
       }
-      if (ix != o) {
+      if (ix != o && ix != mergeIdx) { // Changed with long-K
 	if (!searchKey(
 		       genLoc
 		       + (keys_input[ix].key_number
