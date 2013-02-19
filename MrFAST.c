@@ -369,8 +369,8 @@ int backwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb)
 	Diag = _mm_slli_si128(Diag, 2);
 	Diag = _mm_insert_epi16(Diag, 2*e,0);
 
-	R0 = _mm_min_epi16(R1 + Side1, _mm_slli_si128(R0,2) + Diag);
-	R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down1);
+	R0 = _mm_min_epi16(_mm_add_epi16(R1,Side1), _mm_add_epi16(_mm_slli_si128(R0,2),Diag));
+	R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2),Down1));
       }
 
       else {
@@ -383,8 +383,8 @@ int backwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb)
 	Diag = _mm_slli_si128(Diag, 2);
 	Diag = _mm_insert_epi16(Diag, 2*e,0);
 
-	R1 = _mm_min_epi16(R0 + Side1, _mm_slli_si128(R1,2) + Diag);
-	R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down1);
+	R1 = _mm_min_epi16(_mm_add_epi16(R0,Side1), _mm_add_epi16(_mm_slli_si128(R1,2),Diag));
+	R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down1));
       }
     }
   Error = _mm_xor_si128(Error, Error);
@@ -427,8 +427,8 @@ int backwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb)
 	  _mm_insert_epi16(Diag, *(b-(i/2-1+j)) != *(a-(i/2-1-j)),0);
       }
 
-      R0 = _mm_min_epi16(_mm_srli_si128(R1,2) + Side1, R0 + Diag);
-      R0 = _mm_min_epi16(R0, R1 + Down1);
+      R0 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R1,2),Side1), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(R1,Down1));
 
       if (_mm_extract_epi16(R0,0) <= e)
 	flag = 1;
@@ -467,9 +467,9 @@ int backwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb)
 	  _mm_insert_epi16(Diag, *(b-((i+1)/2+j-1)) != *(a-((i)/2-j-1)),0);
       }
 
-      R1 = _mm_min_epi16(R0 + Side2, R1 + Diag);
+      R1 = _mm_min_epi16(_mm_add_epi16(R0,Side2),_mm_add_epi16(R1,Diag));
 
-      R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down2);
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down2));
       /* farhad: lenb2 */
       if (i >= 2 * lenb - e) {
 	tmp = _mm_srli_si128(R1,2);
@@ -486,8 +486,8 @@ int backwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb)
   Diag = _mm_insert_epi16(Diag, *(b-(lenb-2)) != *(a-(lena-1)), 1);
   Diag = _mm_insert_epi16(Diag, *(b-(lenb-1)) != *(a-(lena-2)), 2);
   Diag = _mm_insert_epi16(Diag, 2*e, 3);
-  R1 = _mm_min_epi16(R0 + Side2, R1 + Diag);
-  R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down2);
+  R1 = _mm_min_epi16(_mm_add_epi16(R0,Side2),_mm_add_epi16(R1,Diag));
+  R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down2));
 
   minError = min(minError, _mm_extract_epi16(R1,2));
 
@@ -497,8 +497,8 @@ int backwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb)
   Diag = _mm_insert_epi16(Diag, *(b-(lenb-1)) != *(a-(lena-1)), 1);
   Diag = _mm_insert_epi16(Diag, 2*e, 2);
 
-  R0 = _mm_min_epi16(_mm_srli_si128(R1,2) + Side1, R0 + Diag);
-  R0 = _mm_min_epi16(R0, R1 + Down1);
+  R0 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R1,2),Side1), _mm_add_epi16(R0,Diag));
+  R0 = _mm_min_epi16(R0, _mm_add_epi16(R1,Down1));
 
   minError = min(minError, _mm_extract_epi16(R0,1));
 
@@ -508,8 +508,8 @@ int backwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb)
   Diag = _mm_insert_epi16(Diag, *(b-(lenb-1)) != *(a-(lena)), 1);
   Diag = _mm_insert_epi16(Diag, 2*e, 2);
 
-  R1 = _mm_min_epi16(R0 + Side2, R1 + Diag);
-  R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down2);
+  R1 = _mm_min_epi16(_mm_add_epi16(R0,Side2), _mm_add_epi16(R1,Diag));
+  R1 = _mm_min_epi16(R1,_mm_add_epi16(_mm_slli_si128(R0,2),Down2));
 
   minError = min(minError, _mm_extract_epi16(R1,1));
 
@@ -518,8 +518,8 @@ int backwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb)
   Diag = _mm_insert_epi16(Diag, *(b-(lenb-1)) != *(a-(lena+1)), 0);
   Diag = _mm_insert_epi16(Diag, 2*e, 1);
 
-  R0 = _mm_min_epi16(_mm_srli_si128(R1,2) + Side1, R0 + Diag);
-  R0 = _mm_min_epi16(R0, R1 + Down1);
+  R0 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R1,2),Side1),_mm_add_epi16(R0,Diag));
+  R0 = _mm_min_epi16(R0, _mm_add_epi16(R1,Down1));
 
   minError = min(minError, _mm_extract_epi16(R0,0));
 
@@ -528,8 +528,8 @@ int backwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb)
   Diag = _mm_insert_epi16(Diag, *(b-(lenb-1)) != *(a-(lena+2)), 0);
   Diag = _mm_insert_epi16(Diag, 2*e, 1);
 
-  R1 = _mm_min_epi16(R0 + Side2, R1 + Diag);
-  R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down2);
+  R1 = _mm_min_epi16(_mm_add_epi16(R0,Side2), _mm_add_epi16(R1,Diag));
+  R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down2));
 
   minError = min(minError, _mm_extract_epi16(R0,0));
 
@@ -617,8 +617,8 @@ int backwardEditDistanceSSE2G(char *a, int lena, char *b, int lenb) {
       Diag = _mm_slli_si128(Diag, 2);
       Diag = _mm_insert_epi16(Diag, 2*e,0);
 
-      R0 = _mm_min_epi16(R1 + Side1, _mm_slli_si128(R0,2) + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down1);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side1), _mm_add_epi16(_mm_slli_si128(R0,2),Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2),Down1));
     }
 
     else {
@@ -631,8 +631,8 @@ int backwardEditDistanceSSE2G(char *a, int lena, char *b, int lenb) {
       Diag = _mm_slli_si128(Diag, 2);
       Diag = _mm_insert_epi16(Diag, 2*e,0);
 
-      R1 = _mm_min_epi16(R0 + Side1, _mm_slli_si128(R1,2) + Diag);
-      R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(R0,Side1), _mm_add_epi16(_mm_slli_si128(R1,2),Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down1));
     }
   }
   Error = _mm_xor_si128(Error, Error);
@@ -671,8 +671,8 @@ int backwardEditDistanceSSE2G(char *a, int lena, char *b, int lenb) {
 	  _mm_insert_epi16(Diag, *(b-(i/2-1+j)) != *(a-(i/2-1-j)),0);
       }
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2),Down2));
 
       if (_mm_extract_epi16(R0,0) <= e)
 	flag = 1;
@@ -702,8 +702,8 @@ int backwardEditDistanceSSE2G(char *a, int lena, char *b, int lenb) {
 	  _mm_insert_epi16(Diag, *(b-((i+1)/2-j-1)) != *(a-((i-1)/2+j-1)),0);
       }
 
-      R1 = _mm_min_epi16(_mm_srli_si128(R0,2) + Side1, R1 + Diag);
-      R1 = _mm_min_epi16(R1, R0 + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R0,2),Side1), _mm_add_epi16(R1,Diag));
+      R1 = _mm_min_epi16(R1,_mm_add_epi16(R0,Down1));
 
       if (i >= 2 * lenb - e) {
 	tmp = _mm_srli_si128(R1,2);
@@ -727,8 +727,8 @@ int backwardEditDistanceSSE2G(char *a, int lena, char *b, int lenb) {
 	  _mm_insert_epi16(Diag, *(b-(lenb-1-k)) != *(a-((i-lenb)-1+k)),0);
       }
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2),Down2));
 
       tmpE--;
       tmp = _mm_srli_si128(R0,2);
@@ -742,8 +742,8 @@ int backwardEditDistanceSSE2G(char *a, int lena, char *b, int lenb) {
 	  _mm_insert_epi16(Diag, *(b-(lenb-1-k)) != *(a-((i-lenb)-1+k)),0);
       }
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2) ,Down2));
 
       tmpE--;
 
@@ -760,8 +760,8 @@ int backwardEditDistanceSSE2G(char *a, int lena, char *b, int lenb) {
 	  _mm_insert_epi16(Diag, *(b-(lenb-1-k)) != *(a-((i-lenb)-1+k)),0);
       }
 
-      R1 = _mm_min_epi16(_mm_srli_si128(R0,2) + Side1, R1 + Diag);
-      R1 = _mm_min_epi16(R1, R0 + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R0,2),Side1), _mm_add_epi16(R1,Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(R0 ,Down1));
 
       tmp = _mm_srli_si128(R1,2);
       for (k = 0; k < tmpE - 2; k++)
@@ -782,16 +782,16 @@ int backwardEditDistanceSSE2G(char *a, int lena, char *b, int lenb) {
   Down1 = _mm_insert_epi16(Down1, 2*e, 0);
   Down1 = _mm_insert_epi16(Down1, 1, 1);
 
-  R1 = _mm_min_epi16(R0 + Side1, _mm_slli_si128(R1,2) + Diag);
-  R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down1);
+  R1 = _mm_min_epi16(_mm_add_epi16(R0,Side1), _mm_add_epi16(_mm_slli_si128(R1,2),Diag));
+  R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down1));
 
   minError = min(minError, _mm_extract_epi16(R1,1));
 
   Diag = _mm_insert_epi16(Diag, *(a-(lenb+e-1)) != *(b-(lenb-1)), 0);
   Down1 = _mm_insert_epi16(Down1, 1, 0);
 
-  R0 = _mm_min_epi16(R1 + Down1, R0 + Diag);
-  R0 = _mm_min_epi16(R0, _mm_srli_si128(R1,2) + Side1);
+  R0 = _mm_min_epi16(_mm_add_epi16(R1,Down1), _mm_add_epi16(R0,Diag));
+  R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_srli_si128(R1,2) ,Side1));
 
   minError = min(minError, _mm_extract_epi16(R0,0));
 
@@ -929,8 +929,8 @@ inline int backwardEditDistanceSSE2Extension(char *a, int lena, char *b,
       Result = _mm_cmpeq_epi16(SeqA, tmp);
       Diag = _mm_andnot_si128(Result, MASK);
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2) ,Down2));
 
       if (_mm_extract_epi16(R0, 0) > errThreshold
 	  && _mm_extract_epi16(R0, 1) > errThreshold
@@ -956,8 +956,8 @@ inline int backwardEditDistanceSSE2Extension(char *a, int lena, char *b,
       Result = _mm_cmpeq_epi16(SeqA, _mm_shufflelo_epi16(SeqB,27));
       Diag = _mm_andnot_si128(Result, MASK);
 
-      R1 = _mm_min_epi16(_mm_srli_si128(R0,2) + Side1, R1 + Diag);
-      R1 = _mm_min_epi16(R1, R0 + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R0,2),Side1), _mm_add_epi16(R1,Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(R0 ,Down1));
 
       if (i >= 2 * lenb - e) {
 	tmp = _mm_srli_si128(R1,2);
@@ -982,8 +982,8 @@ inline int backwardEditDistanceSSE2Extension(char *a, int lena, char *b,
 	  _mm_insert_epi16(Diag, *(b-(lenb-1-k)) != *(a-((i-lenb)-1+k)),0);
       }
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2) ,Down2));
 
       tmpE--;
 
@@ -998,8 +998,8 @@ inline int backwardEditDistanceSSE2Extension(char *a, int lena, char *b,
 	  _mm_insert_epi16(Diag, *(b-(lenb-1-k)) != *(a-((i-lenb)-1+k)),0);
       }
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2) ,Down2));
 
       tmpE--;
 
@@ -1016,8 +1016,8 @@ inline int backwardEditDistanceSSE2Extension(char *a, int lena, char *b,
 	  _mm_insert_epi16(Diag, *(b-(lenb-1-k)) != *(a-((i-lenb)-1+k)),0);
       }
 
-      R1 = _mm_min_epi16(_mm_srli_si128(R0,2) + Side1, R1 + Diag);
-      R1 = _mm_min_epi16(R1, R0 + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R0,2),Side1), _mm_add_epi16(R1,Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(R0 ,Down1));
 
       tmp = _mm_srli_si128(R1,2);
       for (k = 0; k < tmpE - 2; k++)
@@ -1038,16 +1038,16 @@ inline int backwardEditDistanceSSE2Extension(char *a, int lena, char *b,
   Down1 = _mm_insert_epi16(Down1, 2*errThreshold, 0);
   Down1 = _mm_insert_epi16(Down1, 1, 1);
 
-  R1 = _mm_min_epi16(R0 + Side1, _mm_slli_si128(R1,2) + Diag);
-  R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down1);
+  R1 = _mm_min_epi16(_mm_add_epi16(R0,Side1), _mm_add_epi16(_mm_slli_si128(R1,2),Diag));
+  R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down1));
 
   minError = min(minError, _mm_extract_epi16(R1,1));
 
   Diag = _mm_insert_epi16(Diag, *(a-(lenb+e-1)) != *(b-(lenb-1)), 0);
   Down1 = _mm_insert_epi16(Down1, 1, 0);
 
-  R0 = _mm_min_epi16(R1 + Down1, R0 + Diag);
-  R0 = _mm_min_epi16(R0, _mm_srli_si128(R1,2) + Side1);
+  R0 = _mm_min_epi16(_mm_add_epi16(R1,Down1), _mm_add_epi16(R0,Diag));
+  R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_srli_si128(R1,2) ,Side1));
 
   minError = min(minError, _mm_extract_epi16(R0,0));
 
@@ -1182,8 +1182,8 @@ int backwardEditDistance4SSE2(char *a, int lena, char *b, int lenb) {
       Result = _mm_cmpeq_epi16(SeqA, tmp);
       Diag = _mm_andnot_si128(Result, MASK);
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2) ,Down2));
 
       if (_mm_extract_epi16(R0, 0) > e && _mm_extract_epi16(R0, 1) > e
 	  && _mm_extract_epi16(R0, 2) > e
@@ -1208,8 +1208,8 @@ int backwardEditDistance4SSE2(char *a, int lena, char *b, int lenb) {
       Result = _mm_cmpeq_epi16(SeqA, _mm_shufflelo_epi16(SeqB,27));
       Diag = _mm_andnot_si128(Result, MASK);
 
-      R1 = _mm_min_epi16(_mm_srli_si128(R0,2) + Side1, R1 + Diag);
-      R1 = _mm_min_epi16(R1, R0 + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R0,2),Side1), _mm_add_epi16(R1,Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(R0 ,Down1));
 
       if (i >= 2 * lenb - e) {
 	tmp = _mm_srli_si128(R1,2);
@@ -1236,8 +1236,8 @@ int backwardEditDistance4SSE2(char *a, int lena, char *b, int lenb) {
 	  _mm_insert_epi16(Diag, *(b-(lenb-1-k)) != *(a-((i-lenb)-1+k)),0);
       }
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2) ,Down2));
 
       tmpE--;
 
@@ -1252,8 +1252,8 @@ int backwardEditDistance4SSE2(char *a, int lena, char *b, int lenb) {
 	  _mm_insert_epi16(Diag, *(b-(lenb-1-k)) != *(a-((i-lenb)-1+k)),0);
       }
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2) ,Down2));
 
       tmpE--;
 
@@ -1270,8 +1270,8 @@ int backwardEditDistance4SSE2(char *a, int lena, char *b, int lenb) {
 	  _mm_insert_epi16(Diag, *(b-(lenb-1-k)) != *(a-((i-lenb)-1+k)),0);
       }
 
-      R1 = _mm_min_epi16(_mm_srli_si128(R0,2) + Side1, R1 + Diag);
-      R1 = _mm_min_epi16(R1, R0 + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R0,2),Side1), _mm_add_epi16(R1,Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(R0 ,Down1));
 
       tmp = _mm_srli_si128(R1,2);
       for (k = 0; k < tmpE - 2; k++)
@@ -1292,16 +1292,16 @@ int backwardEditDistance4SSE2(char *a, int lena, char *b, int lenb) {
   Down1 = _mm_insert_epi16(Down1, 2*e, 0);
   Down1 = _mm_insert_epi16(Down1, 1, 1);
 
-  R1 = _mm_min_epi16(R0 + Side1, _mm_slli_si128(R1,2) + Diag);
-  R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down1);
+  R1 = _mm_min_epi16(_mm_add_epi16(R0,Side1), _mm_add_epi16(_mm_slli_si128(R1,2),Diag));
+  R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down1));
 
   minError = min(minError, _mm_extract_epi16(R1,1));
 
   Diag = _mm_insert_epi16(Diag, *(a-(lenb+e-1)) != *(b-(lenb-1)), 0);
   Down1 = _mm_insert_epi16(Down1, 1, 0);
 
-  R0 = _mm_min_epi16(R1 + Down1, R0 + Diag);
-  R0 = _mm_min_epi16(R0, _mm_srli_si128(R1,2) + Side1);
+  R0 = _mm_min_epi16(_mm_add_epi16(R1,Down1), _mm_add_epi16(R0,Diag));
+  R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_srli_si128(R1,2) ,Side1));
 
   minError = min(minError, _mm_extract_epi16(R0,0));
 
@@ -1440,8 +1440,8 @@ inline int forwardEditDistanceSSE2Extension(char *a, int lena, char *b,
       Result = _mm_cmpeq_epi16(SeqA, tmp);
       Diag = _mm_andnot_si128(Result, MASK);
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2) ,Down2));
 
       if (_mm_extract_epi16(R0, 0) > errThreshold
 	  && _mm_extract_epi16(R0, 1) > errThreshold
@@ -1467,8 +1467,8 @@ inline int forwardEditDistanceSSE2Extension(char *a, int lena, char *b,
       Result = _mm_cmpeq_epi16(SeqA, _mm_shufflelo_epi16(SeqB,27));
       Diag = _mm_andnot_si128(Result, MASK);
 
-      R1 = _mm_min_epi16(_mm_srli_si128(R0,2) + Side1, R1 + Diag);
-      R1 = _mm_min_epi16(R1, R0 + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R0,2),Side1), _mm_add_epi16(R1,Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(R0 ,Down1));
 
       if (i >= 2 * lenb - e) {
 	tmp = _mm_srli_si128(R1,2);
@@ -1491,8 +1491,8 @@ inline int forwardEditDistanceSSE2Extension(char *a, int lena, char *b,
 	Diag = _mm_insert_epi16(Diag, b[lenb-1-k] != a[(i-lenb)-1+k],0);
       }
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2) ,Down2));
 
       tmpE--;
 
@@ -1506,8 +1506,8 @@ inline int forwardEditDistanceSSE2Extension(char *a, int lena, char *b,
 	Diag = _mm_insert_epi16(Diag, b[lenb-1-k] != a[(i-lenb)-1+k],0);
       }
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2) ,Down2));
 
       tmpE--;
 
@@ -1523,8 +1523,8 @@ inline int forwardEditDistanceSSE2Extension(char *a, int lena, char *b,
 	Diag = _mm_insert_epi16(Diag, b[lenb-1-k] != a[(i-lenb)-1+k],0);
       }
 
-      R1 = _mm_min_epi16(_mm_srli_si128(R0,2) + Side1, R1 + Diag);
-      R1 = _mm_min_epi16(R1, R0 + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R0,2),Side1), _mm_add_epi16(R1,Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(R0 ,Down1));
 
       tmp = _mm_srli_si128(R1,2);
       for (k = 0; k < tmpE - 2; k++)
@@ -1545,16 +1545,16 @@ inline int forwardEditDistanceSSE2Extension(char *a, int lena, char *b,
   Down1 = _mm_insert_epi16(Down1, minError, 0);
   Down1 = _mm_insert_epi16(Down1, 1, 1);
 
-  R1 = _mm_min_epi16(R0 + Side1, _mm_slli_si128(R1,2) + Diag);
-  R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down1);
+  R1 = _mm_min_epi16(_mm_add_epi16(R0,Side1), _mm_add_epi16(_mm_slli_si128(R1,2),Diag));
+  R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down1));
 
   minError = min(minError, _mm_extract_epi16(R1,1));
 
   Diag = _mm_insert_epi16(Diag, a[lenb+e-1] != b[lenb-1], 0);
   Down1 = _mm_insert_epi16(Down1, 1, 0);
 
-  R0 = _mm_min_epi16(R1 + Down1, R0 + Diag);
-  R0 = _mm_min_epi16(R0, _mm_srli_si128(R1,2) + Side1);
+  R0 = _mm_min_epi16(_mm_add_epi16(R1,Down1), _mm_add_epi16(R0,Diag));
+  R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_srli_si128(R1,2) ,Side1));
 
   minError = min(minError, _mm_extract_epi16(R0,0));
 
@@ -1692,8 +1692,8 @@ int forwardEditDistance4SSE2(char *a, int lena, char *b, int lenb) {
       Result = _mm_cmpeq_epi16(SeqA, tmp);
       Diag = _mm_andnot_si128(Result, MASK);
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2) ,Down2));
 
       if (_mm_extract_epi16(R0, 0) > e && _mm_extract_epi16(R0, 1) > e
 	  && _mm_extract_epi16(R0, 2) > e
@@ -1718,8 +1718,8 @@ int forwardEditDistance4SSE2(char *a, int lena, char *b, int lenb) {
       Result = _mm_cmpeq_epi16(SeqA, _mm_shufflelo_epi16(SeqB,27));
       Diag = _mm_andnot_si128(Result, MASK);
 
-      R1 = _mm_min_epi16(_mm_srli_si128(R0,2) + Side1, R1 + Diag);
-      R1 = _mm_min_epi16(R1, R0 + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R0,2),Side1), _mm_add_epi16(R1,Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(R0 ,Down1));
 
       if (i >= 2 * lenb - e) {
 	tmp = _mm_srli_si128(R1,2);
@@ -1742,8 +1742,8 @@ int forwardEditDistance4SSE2(char *a, int lena, char *b, int lenb) {
 	Diag = _mm_insert_epi16(Diag, b[lenb-1-k] != a[(i-lenb)-1+k],0);
       }
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2) ,Down2));
 
       tmpE--;
 
@@ -1757,8 +1757,8 @@ int forwardEditDistance4SSE2(char *a, int lena, char *b, int lenb) {
 	Diag = _mm_insert_epi16(Diag, b[lenb-1-k] != a[(i-lenb)-1+k],0);
       }
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2) ,Down2));
 
       tmpE--;
 
@@ -1774,8 +1774,8 @@ int forwardEditDistance4SSE2(char *a, int lena, char *b, int lenb) {
 	Diag = _mm_insert_epi16(Diag, b[lenb-1-k] != a[(i-lenb)-1+k],0);
       }
 
-      R1 = _mm_min_epi16(_mm_srli_si128(R0,2) + Side1, R1 + Diag);
-      R1 = _mm_min_epi16(R1, R0 + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R0,2),Side1), _mm_add_epi16(R1,Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(R0 ,Down1));
 
       tmp = _mm_srli_si128(R1,2);
       for (k = 0; k < tmpE - 2; k++)
@@ -1796,16 +1796,16 @@ int forwardEditDistance4SSE2(char *a, int lena, char *b, int lenb) {
   Down1 = _mm_insert_epi16(Down1, 2*e, 0);
   Down1 = _mm_insert_epi16(Down1, 1, 1);
 
-  R1 = _mm_min_epi16(R0 + Side1, _mm_slli_si128(R1,2) + Diag);
-  R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down1);
+  R1 = _mm_min_epi16(_mm_add_epi16(R0,Side1), _mm_add_epi16(_mm_slli_si128(R1,2),Diag));
+  R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down1));
 
   minError = min(minError, _mm_extract_epi16(R1,1));
 
   Diag = _mm_insert_epi16(Diag, a[lenb+e-1] != b[lenb-1], 0);
   Down1 = _mm_insert_epi16(Down1, 1, 0);
 
-  R0 = _mm_min_epi16(R1 + Down1, R0 + Diag);
-  R0 = _mm_min_epi16(R0, _mm_srli_si128(R1,2) + Side1);
+  R0 = _mm_min_epi16(_mm_add_epi16(R1,Down1), _mm_add_epi16(R0,Diag));
+  R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_srli_si128(R1,2) ,Side1));
 
   minError = min(minError, _mm_extract_epi16(R0,0));
 
@@ -1893,8 +1893,8 @@ int forwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb) {
       Diag = _mm_slli_si128(Diag, 2);
       Diag = _mm_insert_epi16(Diag, 2*e,0);
 
-      R0 = _mm_min_epi16(R1 + Side1, _mm_slli_si128(R0,2) + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down1);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side1), _mm_add_epi16(_mm_slli_si128(R0,2),Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2),Down1));
 
     }
 
@@ -1908,8 +1908,8 @@ int forwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb) {
       Diag = _mm_slli_si128(Diag, 2);
       Diag = _mm_insert_epi16(Diag, 2*e,0);
 
-      R1 = _mm_min_epi16(R0 + Side1, _mm_slli_si128(R1,2) + Diag);
-      R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(R0,Side1), _mm_add_epi16(_mm_slli_si128(R1,2),Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down1));
 
     }
   }
@@ -1953,8 +1953,8 @@ int forwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb) {
 	Diag = _mm_insert_epi16(Diag, b[i/2-1+j] != a[i/2-1-j],0);
       }
 
-      R0 = _mm_min_epi16(_mm_srli_si128(R1,2) + Side1, R0 + Diag);
-      R0 = _mm_min_epi16(R0, R1 + Down1);
+      R0 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R1,2) ,Side1), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(R1,Down1));
 
       if (_mm_extract_epi16(R0,0) <= e)
 	flag = 1;
@@ -1996,8 +1996,8 @@ int forwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb) {
 	Diag = _mm_insert_epi16(Diag, b[(i+1)/2+j-1] != a[(i)/2-j-1],0);
       }
 
-      R1 = _mm_min_epi16(R0 + Side2, R1 + Diag);
-      R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down2);
+      R1 = _mm_min_epi16(_mm_add_epi16(R0,Side2), _mm_add_epi16(R1,Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down2));
 
       if (i >= 2 * lenb - e) {
 	tmp = _mm_srli_si128(R1,2);
@@ -2014,8 +2014,8 @@ int forwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb) {
   Diag = _mm_insert_epi16(Diag, b[lenb-2] != a[lena-1], 1);
   Diag = _mm_insert_epi16(Diag, b[lenb-1] != a[lena-2], 2);
   Diag = _mm_insert_epi16(Diag, 2*e, 3);
-  R1 = _mm_min_epi16(R0 + Side2, R1 + Diag);
-  R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down2);
+  R1 = _mm_min_epi16(_mm_add_epi16(R0,Side2), _mm_add_epi16(R1,Diag));
+  R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down2));
 
   minError = min(minError, _mm_extract_epi16(R1,2));
 
@@ -2025,8 +2025,8 @@ int forwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb) {
   Diag = _mm_insert_epi16(Diag, b[lenb-1] != a[lena-1], 1);
   Diag = _mm_insert_epi16(Diag, 2*e, 2);
 
-  R0 = _mm_min_epi16(_mm_srli_si128(R1,2) + Side1, R0 + Diag);
-  R0 = _mm_min_epi16(R0, R1 + Down1);
+  R0 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R1,2) ,Side1), _mm_add_epi16(R0,Diag));
+  R0 = _mm_min_epi16(R0, _mm_add_epi16(R1,Down1));
 
   minError = min(minError, _mm_extract_epi16(R0,1));
 
@@ -2036,8 +2036,8 @@ int forwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb) {
   Diag = _mm_insert_epi16(Diag, b[lenb-1] != a[lena], 1);
   Diag = _mm_insert_epi16(Diag, 2*e, 2);
 
-  R1 = _mm_min_epi16(R0 + Side2, R1 + Diag);
-  R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down2);
+  R1 = _mm_min_epi16(_mm_add_epi16(R0,Side2), _mm_add_epi16(R1,Diag));
+  R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down2));
 
   minError = min(minError, _mm_extract_epi16(R1,1));
 
@@ -2046,8 +2046,8 @@ int forwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb) {
   Diag = _mm_insert_epi16(Diag, b[lenb-1] != a[lena+1], 0);
   Diag = _mm_insert_epi16(Diag, 2*e, 1);
 
-  R0 = _mm_min_epi16(_mm_srli_si128(R1,2) + Side1, R0 + Diag);
-  R0 = _mm_min_epi16(R0, R1 + Down1);
+  R0 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R1,2) ,Side1), _mm_add_epi16(R0,Diag));
+  R0 = _mm_min_epi16(R0, _mm_add_epi16(R1,Down1));
 
   minError = min(minError, _mm_extract_epi16(R0,0));
 
@@ -2056,8 +2056,8 @@ int forwardEditDistanceSSE2Odd(char *a, int lena, char *b, int lenb) {
   Diag = _mm_insert_epi16(Diag, b[lenb-1] != a[lena+2], 0);
   Diag = _mm_insert_epi16(Diag, 2*e, 1);
 
-  R1 = _mm_min_epi16(R0 + Side2, R1 + Diag);
-  R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down2);
+  R1 = _mm_min_epi16(_mm_add_epi16(R0,Side2), _mm_add_epi16(R1,Diag));
+  R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down2));
 
   minError = min(minError, _mm_extract_epi16(R1,0));
 
@@ -2146,8 +2146,8 @@ int forwardEditDistanceSSE2G(char *a, int lena, char *b, int lenb) {
       Diag = _mm_slli_si128(Diag, 2);
       Diag = _mm_insert_epi16(Diag, 2*e,0);
 
-      R0 = _mm_min_epi16(R1 + Side1, _mm_slli_si128(R0,2) + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down1);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side1), _mm_add_epi16(_mm_slli_si128(R0,2),Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2),Down1));
     }
 
     else {
@@ -2160,8 +2160,8 @@ int forwardEditDistanceSSE2G(char *a, int lena, char *b, int lenb) {
       Diag = _mm_slli_si128(Diag, 2);
       Diag = _mm_insert_epi16(Diag, 2*e,0);
 
-      R1 = _mm_min_epi16(R0 + Side1, _mm_slli_si128(R1,2) + Diag);
-      R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(R0,Side1), _mm_add_epi16(_mm_slli_si128(R1,2),Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down1));
     }
   }
   Error = _mm_xor_si128(Error, Error);
@@ -2199,8 +2199,8 @@ int forwardEditDistanceSSE2G(char *a, int lena, char *b, int lenb) {
 	Diag = _mm_insert_epi16(Diag, b[i/2-1+j] != a[i/2-1-j],0);
       }
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2) ,Down2));
 
       if (_mm_extract_epi16(R0,0) <= e)
 	flag = 1;
@@ -2231,8 +2231,8 @@ int forwardEditDistanceSSE2G(char *a, int lena, char *b, int lenb) {
 	  _mm_insert_epi16(Diag, b[(i+1)/2-j-1] != a[(i-1)/2+j-1],0);
       }
 
-      R1 = _mm_min_epi16(_mm_srli_si128(R0,2) + Side1, R1 + Diag);
-      R1 = _mm_min_epi16(R1, R0 + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R0,2),Side1), _mm_add_epi16(R1,Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(R0 ,Down1));
 
       if (i >= 2 * lenb - e) {
 	tmp = _mm_srli_si128(R1,2);
@@ -2255,8 +2255,8 @@ int forwardEditDistanceSSE2G(char *a, int lena, char *b, int lenb) {
 	Diag = _mm_insert_epi16(Diag, b[lenb-1-k] != a[(i-lenb)-1+k],0);
       }
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2) ,Down2));
 
       tmpE--;
 
@@ -2270,8 +2270,8 @@ int forwardEditDistanceSSE2G(char *a, int lena, char *b, int lenb) {
 	Diag = _mm_insert_epi16(Diag, b[lenb-1-k] != a[(i-lenb)-1+k],0);
       }
 
-      R0 = _mm_min_epi16(R1 + Side2, R0 + Diag);
-      R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side2), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2) ,Down2));
 
       tmpE--;
 
@@ -2287,8 +2287,8 @@ int forwardEditDistanceSSE2G(char *a, int lena, char *b, int lenb) {
 	Diag = _mm_insert_epi16(Diag, b[lenb-1-k] != a[(i-lenb)-1+k],0);
       }
 
-      R1 = _mm_min_epi16(_mm_srli_si128(R0,2) + Side1, R1 + Diag);
-      R1 = _mm_min_epi16(R1, R0 + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(_mm_srli_si128(R0,2),Side1), _mm_add_epi16(R1,Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(R0 ,Down1));
 
       tmp = _mm_srli_si128(R1,2);
       for (k = 0; k < tmpE - 1; k++)
@@ -2309,16 +2309,16 @@ int forwardEditDistanceSSE2G(char *a, int lena, char *b, int lenb) {
   Down1 = _mm_insert_epi16(Down1, 2*e, 0);
   Down1 = _mm_insert_epi16(Down1, 1, 1);
 
-  R1 = _mm_min_epi16(R0 + Side1, _mm_slli_si128(R1,2) + Diag);
-  R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down1);
+  R1 = _mm_min_epi16(_mm_add_epi16(R0,Side1), _mm_add_epi16(_mm_slli_si128(R1,2),Diag));
+  R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down1));
 
   minError = min(minError, _mm_extract_epi16(R1,1));
 
   Diag = _mm_insert_epi16(Diag, a[lenb+e-1] != b[lenb-1], 1);
   Down1 = _mm_insert_epi16(Down1, 1, 0);
 
-  R0 = _mm_min_epi16(R1 + Down1, R0 + Diag);
-  R0 = _mm_min_epi16(R0, _mm_srli_si128(R1,2) + Side1);
+  R0 = _mm_min_epi16(_mm_add_epi16(R1,Down1), _mm_add_epi16(R0,Diag));
+  R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_srli_si128(R1,2) ,Side1));
 
   minError = min(minError, _mm_extract_epi16(R0,0));
 
@@ -2383,8 +2383,8 @@ int forwardEditDistance2SSE2(char *a, int lena, char *b, int lenb) {
 
   tmp = _mm_slli_si128(R1,2);
 
-  R0 = _mm_min_epi16(R1 + Side1, R0 + Diag);
-  R0 = _mm_min_epi16(R0, tmp + Down2);
+  R0 = _mm_min_epi16(_mm_add_epi16(R1,Side1), _mm_add_epi16(R0,Diag));
+  R0 = _mm_min_epi16(R0, _mm_add_epi16(tmp,Down2));
 
   for (i = 3; i < 2 * lena; i++) {
     if (i % 2 == 1) {
@@ -2398,8 +2398,8 @@ int forwardEditDistance2SSE2(char *a, int lena, char *b, int lenb) {
 
       tmp = _mm_srli_si128(R0,2);
 
-      R1 = _mm_min_epi16(tmp + Side1, R1 + Diag);
-      R1 = _mm_min_epi16(R1, R0 + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(tmp,Side1), _mm_add_epi16(R1,Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(R0 ,Down1));
 
       if (i > 2 * lenb - 2) {
 	i1 = _mm_extract_epi16(R1, 1);
@@ -2419,8 +2419,8 @@ int forwardEditDistance2SSE2(char *a, int lena, char *b, int lenb) {
 
       tmp = _mm_slli_si128(R1,2);
 
-      R0 = _mm_min_epi16(R1 + Side1, R0 + Diag);
-      R0 = _mm_min_epi16(R0, tmp + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side1), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(tmp,Down2));
 
       tmp = _mm_sub_epi16(ERROR_REACH, R0);
       i0 = _mm_movemask_epi8(tmp);
@@ -2445,8 +2445,8 @@ int forwardEditDistance2SSE2(char *a, int lena, char *b, int lenb) {
   Diag = _mm_insert_epi16(Diag,2*e,2);
   //        Diag  = _mm_set_epi16(0, 0, 0, 0, 0, 2*e , ((a[i/2-1]) != (b[i/2-1]))  , ((a[i/2]) != (b[i/2-2])) );
 
-  R0 = _mm_min_epi16(R1 + Side1, R0 + Diag);
-  R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down1);
+  R0 = _mm_min_epi16(_mm_add_epi16(R1,Side1), _mm_add_epi16(R0,Diag));
+  R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2),Down1));
 
   i1 = _mm_extract_epi16(R0, 1);
 
@@ -2462,8 +2462,8 @@ int forwardEditDistance2SSE2(char *a, int lena, char *b, int lenb) {
   Diag = _mm_insert_epi16(Diag,2*e,2);
   //        Diag  = _mm_set_epi16(0, 0, 0, 0, 0, 2*e , ((a[i/2]) != (b[lenb-1]))  , 2*e );
 
-  R1 = _mm_min_epi16(R0 + Side1, _mm_slli_si128(R1,2) + Diag);
-  R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down1);
+  R1 = _mm_min_epi16(_mm_add_epi16(R0,Side1), _mm_add_epi16(_mm_slli_si128(R1,2),Diag));
+  R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down1));
 
   i1 = _mm_extract_epi16(R1, 1);
 
@@ -2483,8 +2483,8 @@ int forwardEditDistance2SSE2(char *a, int lena, char *b, int lenb) {
 
   tmp = _mm_srli_si128(R1,2);
 
-  R0 = _mm_min_epi16(R1 + Down, _mm_srli_si128(R0,2) + Diag);
-  R0 = _mm_min_epi16(R0, tmp + Side);
+  R0 = _mm_min_epi16(_mm_add_epi16(R1,Down), _mm_add_epi16(_mm_srli_si128(R0,2),Diag));
+  R0 = _mm_min_epi16(R0, _mm_add_epi16(tmp,Side));
 
   i0 = _mm_extract_epi16(R0, 0);
 
@@ -2571,8 +2571,8 @@ int backwardEditDistance2SSE2(char *a, int lena, char *b, int lenb) {
 
   tmp = _mm_slli_si128(R1,2);
 
-  R0 = _mm_min_epi16(R1 + Side1, R0 + Diag);
-  R0 = _mm_min_epi16(R0, tmp + Down2);
+  R0 = _mm_min_epi16(_mm_add_epi16(R1,Side1), _mm_add_epi16(R0,Diag));
+  R0 = _mm_min_epi16(R0, _mm_add_epi16(tmp,Down2));
 
   for (i = 3; i < 2 * lena; i++) {
     if (i % 2 == 1) {
@@ -2583,8 +2583,8 @@ int backwardEditDistance2SSE2(char *a, int lena, char *b, int lenb) {
       Diag = _mm_insert_epi16(Diag,error,1);
       tmp = _mm_srli_si128(R0,2);
 
-      R1 = _mm_min_epi16(tmp + Side1, R1 + Diag);
-      R1 = _mm_min_epi16(R1, R0 + Down1);
+      R1 = _mm_min_epi16(_mm_add_epi16(tmp,Side1), _mm_add_epi16(R1,Diag));
+      R1 = _mm_min_epi16(R1, _mm_add_epi16(R0 ,Down1));
 
       if (i > 2 * lenb - 2) {
 	i1 = _mm_extract_epi16(R1, 1);
@@ -2602,8 +2602,8 @@ int backwardEditDistance2SSE2(char *a, int lena, char *b, int lenb) {
 
       tmp = _mm_slli_si128(R1,2);
 
-      R0 = _mm_min_epi16(R1 + Side1, R0 + Diag);
-      R0 = _mm_min_epi16(R0, tmp + Down2);
+      R0 = _mm_min_epi16(_mm_add_epi16(R1,Side1), _mm_add_epi16(R0,Diag));
+      R0 = _mm_min_epi16(R0, _mm_add_epi16(tmp,Down2));
 
       tmp = _mm_sub_epi16(ERROR_REACH, R0);
       i0 = _mm_movemask_epi8(tmp);
@@ -2627,8 +2627,8 @@ int backwardEditDistance2SSE2(char *a, int lena, char *b, int lenb) {
   Diag = _mm_insert_epi16(Diag,error,1);
   Diag = _mm_insert_epi16(Diag,2*e,2);
 
-  R0 = _mm_min_epi16(R1 + Side1, R0 + Diag);
-  R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down1);
+  R0 = _mm_min_epi16(_mm_add_epi16(R1,Side1), _mm_add_epi16(R0,Diag));
+  R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2),Down1));
 
   i0 = _mm_extract_epi16(R0, 0);
   i1 = _mm_extract_epi16(R0, 1);
@@ -2643,8 +2643,8 @@ int backwardEditDistance2SSE2(char *a, int lena, char *b, int lenb) {
   Diag = _mm_insert_epi16(Diag,error,1);
   Diag = _mm_insert_epi16(Diag,2*e,2);
 
-  R1 = _mm_min_epi16(R0 + Side1, _mm_slli_si128(R1,2) + Diag);
-  R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down1);
+  R1 = _mm_min_epi16(_mm_add_epi16(R0,Side1), _mm_add_epi16(_mm_slli_si128(R1,2),Diag));
+  R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down1));
 
   i0 = _mm_extract_epi16(R1, 0);
   i1 = _mm_extract_epi16(R1, 1);
@@ -2663,8 +2663,8 @@ int backwardEditDistance2SSE2(char *a, int lena, char *b, int lenb) {
 
   tmp = _mm_srli_si128(R1,2);
 
-  R0 = _mm_min_epi16(R1 + Down, _mm_srli_si128(R0,2) + Diag);
-  R0 = _mm_min_epi16(R0, tmp + Side);
+  R0 = _mm_min_epi16(_mm_add_epi16(R1,Down), _mm_add_epi16(_mm_srli_si128(R0,2),Diag));
+  R0 = _mm_min_epi16(R0, _mm_add_epi16(tmp,Side));
 
   i0 = _mm_extract_epi16(R0, 0);
 
@@ -3285,8 +3285,8 @@ int verifySingleEndEditDistance2(int refIndex, char *lSeq, int lSeqLength,
 
     tmp = _mm_slli_si128(R1,2);
 
-    R0 = _mm_min_epi16(R1 + Side1, R0 + Diag);
-    R0 = _mm_min_epi16(R0, tmp + Down2);
+    R0 = _mm_min_epi16(_mm_add_epi16(R1,Side1), _mm_add_epi16(R0,Diag));
+    R0 = _mm_min_epi16(R0, _mm_add_epi16(tmp,Down2));
 
     i0 = _mm_extract_epi16(R0, 0);
     i1 = _mm_extract_epi16(R0, 1);
@@ -3312,8 +3312,8 @@ int verifySingleEndEditDistance2(int refIndex, char *lSeq, int lSeqLength,
 
 	tmp = _mm_srli_si128(R0,2);
 
-	R1 = _mm_min_epi16(tmp + Side1, R1 + Diag);
-	R1 = _mm_min_epi16(R1, R0 + Down1);
+	R1 = _mm_min_epi16(_mm_add_epi16(tmp,Side1), _mm_add_epi16(R1,Diag));
+	R1 = _mm_min_epi16(R1, _mm_add_epi16(R0 ,Down1));
 
 	i0 = _mm_extract_epi16(R1, 0);
 	i1 = _mm_extract_epi16(R1, 1);
@@ -3354,8 +3354,8 @@ int verifySingleEndEditDistance2(int refIndex, char *lSeq, int lSeqLength,
 
 	tmp = _mm_slli_si128(R1,2);
 
-	R0 = _mm_min_epi16(R1 + Side1, R0 + Diag);
-	R0 = _mm_min_epi16(R0, tmp + Down2);
+	R0 = _mm_min_epi16(_mm_add_epi16(R1,Side1), _mm_add_epi16(R0,Diag));
+	R0 = _mm_min_epi16(R0, _mm_add_epi16(tmp,Down2));
 
 	i0 = _mm_extract_epi16(R0, 0);
 	i1 = _mm_extract_epi16(R0, 1);
@@ -3406,8 +3406,8 @@ int verifySingleEndEditDistance2(int refIndex, char *lSeq, int lSeqLength,
     Diag = _mm_insert_epi16(Diag,mismatch[1],1);
     Diag = _mm_insert_epi16(Diag,2*e,2);
 
-    R0 = _mm_min_epi16(R1 + Side1, R0 + Diag);
-    R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down1);
+    R0 = _mm_min_epi16(_mm_add_epi16(R1,Side1), _mm_add_epi16(R0,Diag));
+    R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2),Down1));
 
     i0 = _mm_extract_epi16(R0, 0);
     i1 = _mm_extract_epi16(R0, 1);
@@ -3438,8 +3438,8 @@ int verifySingleEndEditDistance2(int refIndex, char *lSeq, int lSeqLength,
     Diag = _mm_insert_epi16(Diag,mismatch[0],1);
     Diag = _mm_insert_epi16(Diag,2*e,2);
 
-    R1 = _mm_min_epi16(R0 + Side1, _mm_slli_si128(R1,2) + Diag);
-    R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down1);
+    R1 = _mm_min_epi16(_mm_add_epi16(R0,Side1), _mm_add_epi16(_mm_slli_si128(R1,2),Diag));
+    R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down1));
 
     i0 = _mm_extract_epi16(R1, 0);
     i1 = _mm_extract_epi16(R1, 1);
@@ -3475,8 +3475,8 @@ int verifySingleEndEditDistance2(int refIndex, char *lSeq, int lSeqLength,
 
     tmp = _mm_srli_si128(R1,2);
 
-    R0 = _mm_min_epi16(R1 + Down, R0 + Diag);
-    R0 = _mm_min_epi16(R0, tmp + Side);
+    R0 = _mm_min_epi16(_mm_add_epi16(R1,Down), _mm_add_epi16(R0,Diag));
+    R0 = _mm_min_epi16(R0, _mm_add_epi16(tmp,Side));
 
     i0 = _mm_extract_epi16(R0, 0);
 
@@ -3568,8 +3568,8 @@ int verifySingleEndEditDistance2(int refIndex, char *lSeq, int lSeqLength,
 
     tmp = _mm_slli_si128(R1,2);
 
-    R0 = _mm_min_epi16(R1 + Side1, R0 + Diag);
-    R0 = _mm_min_epi16(R0, tmp + Down2);
+    R0 = _mm_min_epi16(_mm_add_epi16(R1,Side1), _mm_add_epi16(R0,Diag));
+    R0 = _mm_min_epi16(R0, _mm_add_epi16(tmp,Down2));
 
     i0 = _mm_extract_epi16(R0, 0);
     i1 = _mm_extract_epi16(R0, 1);
@@ -3593,8 +3593,8 @@ int verifySingleEndEditDistance2(int refIndex, char *lSeq, int lSeqLength,
 
 	tmp = _mm_srli_si128(R0,2);
 
-	R1 = _mm_min_epi16(tmp + Side1, R1 + Diag);
-	R1 = _mm_min_epi16(R1, R0 + Down1);
+	R1 = _mm_min_epi16(_mm_add_epi16(tmp,Side1), _mm_add_epi16(R1,Diag));
+	R1 = _mm_min_epi16(R1, _mm_add_epi16(R0 ,Down1));
 
 	i0 = _mm_extract_epi16(R1, 0);
 	i1 = _mm_extract_epi16(R1, 1);
@@ -3635,8 +3635,8 @@ int verifySingleEndEditDistance2(int refIndex, char *lSeq, int lSeqLength,
 
 	tmp = _mm_slli_si128(R1,2);
 
-	R0 = _mm_min_epi16(R1 + Side1, R0 + Diag);
-	R0 = _mm_min_epi16(R0, tmp + Down2);
+	R0 = _mm_min_epi16(_mm_add_epi16(R1,Side1), _mm_add_epi16(R0,Diag));
+	R0 = _mm_min_epi16(R0, _mm_add_epi16(tmp,Down2));
 
 	i0 = _mm_extract_epi16(R0, 0);
 	i1 = _mm_extract_epi16(R0, 1);
@@ -3682,8 +3682,8 @@ int verifySingleEndEditDistance2(int refIndex, char *lSeq, int lSeqLength,
     Diag = _mm_insert_epi16(Diag,mismatch[1],1);
     Diag = _mm_insert_epi16(Diag,2*e,2);
 
-    R0 = _mm_min_epi16(R1 + Side1, R0 + Diag);
-    R0 = _mm_min_epi16(R0, _mm_slli_si128(R1,2) + Down1);
+    R0 = _mm_min_epi16(_mm_add_epi16(R1,Side1), _mm_add_epi16(R0,Diag));
+    R0 = _mm_min_epi16(R0, _mm_add_epi16(_mm_slli_si128(R1,2),Down1));
 
     i0 = _mm_extract_epi16(R0, 0);
     i1 = _mm_extract_epi16(R0, 1);
@@ -3715,8 +3715,8 @@ int verifySingleEndEditDistance2(int refIndex, char *lSeq, int lSeqLength,
     Diag = _mm_insert_epi16(Diag,mismatch[0],1);
     Diag = _mm_insert_epi16(Diag,2*e,2);
 
-    R1 = _mm_min_epi16(R0 + Side1, _mm_slli_si128(R1,2) + Diag);
-    R1 = _mm_min_epi16(R1, _mm_slli_si128(R0,2) + Down1);
+    R1 = _mm_min_epi16(_mm_add_epi16(R0,Side1), _mm_add_epi16(_mm_slli_si128(R1,2),Diag));
+    R1 = _mm_min_epi16(R1, _mm_add_epi16(_mm_slli_si128(R0,2),Down1));
 
     i0 = _mm_extract_epi16(R1, 0);
     i1 = _mm_extract_epi16(R1, 1);
@@ -3755,8 +3755,8 @@ int verifySingleEndEditDistance2(int refIndex, char *lSeq, int lSeqLength,
 
     tmp = _mm_srli_si128(R1,2);
 
-    R0 = _mm_min_epi16(R1 + Down, R0 + Diag);
-    R0 = _mm_min_epi16(R0, tmp + Side);
+    R0 = _mm_min_epi16(_mm_add_epi16(R1,Down), _mm_add_epi16(R0,Diag));
+    R0 = _mm_min_epi16(R0, _mm_add_epi16(tmp,Side));
 
     i0 = _mm_extract_epi16(R0, 0);
 
