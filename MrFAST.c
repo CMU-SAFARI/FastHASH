@@ -67,7 +67,7 @@
 double binomial_coefficient(int n, int k);
 float calculateScore(int index, char *seq, char *qual, char *md);
 unsigned char mrFAST = 1;
-char *versionNumberF = "0.0";
+char *versionNumberF = "0.1";
 
 long long verificationCnt = 0;
 long long mappingCnt = 0;
