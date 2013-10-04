@@ -1,5 +1,6 @@
 /*
- * Copyright (c) <2008 - 2020>, University of Washington, Simon Fraser University, Bilkent University
+ * Copyright (c) <2008 - 2020>, University of Washington, Simon Fraser University, 
+ * Bilkent University and Carnegie Mellon University
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -11,6 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or other
  *   materials provided with the distribution.
  * - Neither the names of the University of Washington, Simon Fraser University, 
+ *   Bilkent University, Carnegie Mellon University,
  *   nor the names of its contributors may be
  *   used to endorse or promote products derived from this software without specific
  *   prior written permission.
@@ -26,17 +28,18 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 
-/*
   Authors: 
   Farhad Hormozdiari
+	  farhadh AT uw DOT edu
   Faraz Hach
+	  fhach AT cs DOT sfu DOT ca
   Can Alkan
-  Emails: 
-  farhadh AT uw DOT edu
-  fhach AT cs DOT sfu DOT ca
-  calkan AT cs DOT bilkent DOT edu DOT tr
+	  calkan AT gmail DOT com
+  Hongyi Xin
+	  gohongyi AT gmail DOT com
+  Donghyuk Lee
+	  bleups AT gmail DOT com
 */
 
 
@@ -47,113 +50,158 @@
 #include "Common.h"
 #include "RefGenome.h"
 
+/*
+ * _rg_ stands for reference genome.
+ * contGen stands probably for continuous genome.
+ */
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+/* 								GLOBAL VARIABLES                              */
+/* ************************************************************************** */
+/* ************************************************************************** */
+
 FILE *_rg_fp;
 char *_rg_gen;
 char *_rg_name;
 int _rg_offset;
 int _rg_contGen; 
 
-/**********************************************/
-int initLoadingRefGenome(char *fileName)
+/* ************************************************************************** */
+/* ************************************************************************** */
+/* 								GLOBAL VARIABLES                              */
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+
+
+/*------------------------------------------------------------------------------
+ * Allocates space for _rg_gen and _rg_name variables for CONTIG_MAX_SIZE and
+ * CONTIG_NAME_SIZE, respectively, but does not load reference genome.
+ *----------------------------------------------------------------------------*/
+int
+initLoadingRefGenome ( char *fileName )
 {
-  char ch;
-  _rg_fp = fileOpen (fileName, "r");
-  if (fscanf(_rg_fp, "%c", &ch))
-    {
-      if (ch == '>')
+	char ch;
+	_rg_fp = fileOpen (fileName, "r");
+	if (fscanf(_rg_fp, "%c", &ch))
 	{
-	  _rg_contGen = 0;
-	  _rg_offset = 0;
-	  _rg_gen = getMem(CONTIG_MAX_SIZE);
-	  _rg_name = getMem(CONTIG_NAME_SIZE);
-	  return 1;
-	}
-    }
-  return 0;
-}
-/**********************************************/
-void finalizeLoadingRefGenome()
-{
-  freeMem(_rg_gen, CONTIG_MAX_SIZE);
-  freeMem(_rg_name, CONTIG_NAME_SIZE); 
-  fclose(_rg_fp);
-}
-/**********************************************/
-int loadRefGenome(char **refGen, char **refGenName, int *refGenOff)
-{
-  char ch;
-  int i;
-  int returnVal = 0;
-  int actualSize=0;
-  int size;
-	
-  // New Contig 
-  if (!_rg_contGen)
-    {
-      size = 0;
-      if (fgets(_rg_name, SEQ_MAX_LENGTH, _rg_fp) == 0){
-	fprintf(stderr, "Error in reading reference genome name.\n");
-      }
-    }
-  else
-    {
-      size=strlen(_rg_gen);
-      for( i = 0 ; i < CONTIG_OVERLAP ; i++ )
-	{
-			
-	  _rg_gen[i] = _rg_gen[size-CONTIG_OVERLAP+i];
-	  if (_rg_gen[i] != 'N')
-	    actualSize++;
-	}
-      size = CONTIG_OVERLAP;
-    }
-  while( fscanf(_rg_fp, "%c", &ch) > 0 )
-    {
-      if (ch == '>')
-	{
-	  _rg_contGen = 0;
-	  returnVal = 1;
-	  break;
-	}
-      else if (!isspace(ch))
-	{
-	  ch = toupper(ch);
-	  _rg_gen[size++] = ch;
-	  if (ch != 'N')
-	    {
-	      actualSize++;
-	    }
-	  if (actualSize == CONTIG_SIZE || size == CONTIG_MAX_SIZE)
-	    {
-	      _rg_contGen = 1;
-	      returnVal=1;
-	      break;
+		if (ch == '>')
+		{
+			_rg_contGen = 0;
+			_rg_offset = 0;
+			_rg_gen = getMem(CONTIG_MAX_SIZE);
+			_rg_name = getMem(CONTIG_NAME_SIZE);
+			return 1;
 	    }
 	}
-
-    }
-
-  _rg_gen[size] = '\0';
-
-  for (i=strlen(_rg_name)-1; i >= 0; i--)
-    if (!isspace(_rg_name[i]))
-      break;
-  _rg_name[i+1] = '\0';
-
-  *refGenOff = _rg_offset;
-  *refGenName = _rg_name;
-  *refGen = _rg_gen;
-
-  if (_rg_contGen == 1)
-    {
-      _rg_offset += size-CONTIG_OVERLAP;
-    }
-  else
-    {
-      _rg_offset = 0;
-    }
-	
-	
-  return returnVal;
+	return 0;
 }
-/**********************************************/
+
+
+
+/*------------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+void
+finalizeLoadingRefGenome (   )
+{
+  	freeMem(_rg_gen, CONTIG_MAX_SIZE);
+  	freeMem(_rg_name, CONTIG_NAME_SIZE); 
+  	fclose(_rg_fp);
+}
+
+
+
+/*------------------------------------------------------------------------------
+ * Loads reference genome. Can read it multiple times if it cannot load it at
+ * once.
+ *----------------------------------------------------------------------------*/
+int
+loadRefGenome ( char **refGen, char **refGenName, int *refGenOff )
+{
+	char	 ch;
+	int		 i;
+	int		 returnVal	= 0;
+	int		 actualSize	= 0;
+	int		 size;
+	char	*tmp;
+
+	// New Contig 
+	if (!_rg_contGen)
+	{
+		size = 0;
+		tmp = fgets(_rg_name, SEQ_MAX_LENGTH, _rg_fp);
+
+		if (tmp==NULL)
+	  		fprintf(stderr, "Error reading the contig.\n");
+
+		int k;
+		for (k=0; k<strlen(_rg_name);k++)
+	  	{
+			if (_rg_name[k] == ' ')
+			{
+				_rg_name[k]='\0';
+				break;
+			}
+	  	}
+	}
+	else
+	{
+		size=strlen(_rg_gen);
+		for( i = 0 ; i < CONTIG_OVERLAP ; i++ )
+	  	{
+			_rg_gen[i] = _rg_gen[size-CONTIG_OVERLAP+i];
+			if (_rg_gen[i] != 'N')
+			  	actualSize++;
+	  	}
+		size = CONTIG_OVERLAP;
+    }
+	
+	while( fscanf(_rg_fp, "%c", &ch) > 0 )
+	{
+		if (ch == '>')
+	  	{
+			_rg_contGen = 0;
+			returnVal = 1;
+			break;
+	  	}
+		else if (!isspace(ch))
+	  	{
+			ch = toupper(ch);
+			_rg_gen[size++] = ch;
+			if (ch != 'N')
+			{
+				actualSize++;
+			}
+			if (actualSize == CONTIG_SIZE || size == CONTIG_MAX_SIZE)
+			{
+				_rg_contGen = 1;
+				returnVal=1;
+				break;
+			}
+	  	}
+	}
+
+	_rg_gen[size] = '\0';
+
+	for (i=strlen(_rg_name)-1; i >= 0; i--)
+	  	if (!isspace(_rg_name[i]))
+			break;
+	_rg_name[i+1] = '\0';
+
+	*refGenOff	= _rg_offset;
+	*refGenName = _rg_name;
+	*refGen		= _rg_gen;
+
+	if (_rg_contGen == 1)
+	{
+		_rg_offset += size-CONTIG_OVERLAP;
+	}
+	else
+	{
+		_rg_offset = 0;
+	}
+
+
+	return returnVal;
+}
