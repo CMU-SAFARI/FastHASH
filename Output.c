@@ -1,5 +1,6 @@
 /*
- * Copyright (c) <2008 - 2020>, University of Washington, Simon Fraser University, Bilkent University
+ * Copyright (c) <2008 - 2020>, University of Washington, Simon Fraser University, 
+ * Bilkent University and Carnegie Mellon University
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -11,6 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or other
  *   materials provided with the distribution.
  * - Neither the names of the University of Washington, Simon Fraser University, 
+ *   Bilkent University, Carnegie Mellon University,
  *   nor the names of its contributors may be
  *   used to endorse or promote products derived from this software without specific
  *   prior written permission.
@@ -26,17 +28,18 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 
-/*
   Authors: 
   Farhad Hormozdiari
+	  farhadh AT uw DOT edu
   Faraz Hach
+	  fhach AT cs DOT sfu DOT ca
   Can Alkan
-  Emails: 
-  farhadh AT uw DOT edu
-  fhach AT cs DOT sfu DOT ca
-  calkan AT cs DOT bilkent DOT edu DOT tr
+	  calkan AT gmail DOT com
+  Hongyi Xin
+	  gohongyi AT gmail DOT com
+  Donghyuk Lee
+	  bleups AT gmail DOT com
 */
 
 
@@ -47,265 +50,330 @@
 #include "Common.h"
 #include "Output.h"
 
-FILE			*_out_fp;
-gzFile			_out_gzfp;
 
-char buffer[300000];
-int bufferSize = 0;
+/* ************************************************************************** */
+/* ************************************************************************** */
+/* 								GLOBAL VARIABLES                              */
+/* ************************************************************************** */
+/* ************************************************************************** */
+FILE	*_out_fp;
+gzFile	 _out_gzfp;
+char	 buffer[300000];
+int		 bufferSize = 0;
+/* ************************************************************************** */
+/* ************************************************************************** */
+/* 								GLOBAL VARIABLES                              */
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+/* TX = Text */
 
 
-void finalizeGZOutput()
+
+/*------------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+void
+finalizeGZOutput (   )
 {
-  gzclose(_out_gzfp);
+  	gzclose(_out_gzfp);
 }
 
-void finalizeTXOutput()
+
+
+/*------------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+void
+finalizeTXOutput (   )
 {
-  fclose(_out_fp);
+  	fclose(_out_fp);
 }
 
 
-void gzOutputQ(SAM map)
+
+/*------------------------------------------------------------------------------
+ * Writes the given SAM information to the compressed text file.
+ *----------------------------------------------------------------------------*/
+void
+gzOutputQ ( SAM map )
 {
-  gzprintf(_out_gzfp, "%s\t%d\t%s\t%d\t%d\t%s\t%s\t%d\t%d\t%s\t%s", 
-	   map.QNAME, 
-	   map.FLAG,
-	   map.RNAME, 
-	   map.POS,
-	   map.MAPQ,
-	   map.CIGAR,
-	   map.MRNAME,
-	   map.MPOS,
-	   map.ISIZE,
-	   map.SEQ,
-	   map.QUAL);
+	gzprintf(_out_gzfp, "%s\t%d\t%s\t%d\t%d\t%s\t%s\t%d\t%d\t%s\t%s", 
+		 map.QNAME, 
+		 map.FLAG,
+		 map.RNAME, 
+		 map.POS,
+		 map.MAPQ,
+		 map.CIGAR,
+		 map.MRNAME,
+		 map.MPOS,
+		 map.ISIZE,
+		 map.SEQ,
+		 map.QUAL);
+
+	int i;
+
+	for ( i = 0; i < map.optSize; i++)
+	{
+		switch (map.optFields[i].type)
+	  	{
+	  	case 'A':
+			gzprintf(_out_gzfp, "\t%s:%c:%c", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].cVal);
+			break;
+	  	case 'i':
+			gzprintf(_out_gzfp, "\t%s:%c:%d", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].iVal);
+			break;
+	  	case 'f':
+			gzprintf(_out_gzfp, "\t%s:%c:%f", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].fVal);
+			break;
+	  	case 'Z':
+	  	case 'H':
+			gzprintf(_out_gzfp, "\t%s:%c:%s", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].sVal);
+			break;
+	  	}
+	}
+
+	if (readGroup[0] != 0)
+	  	gzprintf(_out_gzfp, "\t%s:%c:%s", "RG", 'Z', readGroup);
+
+	gzprintf(_out_gzfp, "\n");
+}
+
+
+
+/*------------------------------------------------------------------------------
+ * Are you doing it properly?
+ *----------------------------------------------------------------------------*/
+void
+outputSAM ( FILE *fp, SAM map )
+{
+	fprintf(fp, "%s\t%d\t%s\t%d\t%d\t%s\t%s\t%d\t%d\t%s\t%s",
+		map.QNAME,
+		map.FLAG,
+		map.RNAME,
+		map.POS,
+		map.MAPQ,
+		map.CIGAR,
+		map.MRNAME,
+		map.MPOS,
+		map.ISIZE,
+		map.SEQ,
+		map.QUAL);
+
+
+	int i;
+
+	for ( i = 0; i < map.optSize; i++)
+	{
+		switch (map.optFields[i].type)
+	  {
+	  case 'A':
+		fprintf(fp, "\t%s:%c:%c", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].cVal);
+		break;
+	  case 'i':
+		fprintf(fp, "\t%s:%c:%d", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].iVal);
+		break;
+	  case 'f':
+		fprintf(fp, "\t%s:%c:%f", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].fVal);
+		break;
+	  case 'Z':
+	  case 'H':
+		fprintf(fp, "\t%s:%c:%s", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].sVal);
+		break;
+	  }
+	}
+
+	if (readGroup[0] != 0)
+	  fprintf(fp, "\t%s:%c:%s", "RG", 'Z', readGroup);
+
+	fprintf(fp, "\n");
+
+}
+
+
+
+/*------------------------------------------------------------------------------
+ * Writes the given SAM information to the plain text file.
+ *----------------------------------------------------------------------------*/
+void
+outputQ ( SAM map )
+{
+
+	fprintf(_out_fp, "%s\t%d\t%s\t%d\t%d\t%s\t%s\t%d\t%d\t%s\t%s", 
+		map.QNAME, 
+		map.FLAG,
+		map.RNAME, 
+		map.POS,
+		map.MAPQ,
+		map.CIGAR,
+		map.MRNAME,
+		map.MPOS,
+		map.ISIZE,
+		map.SEQ,
+		map.QUAL);
+	int i;
+	for ( i = 0; i < map.optSize; i++)
+	{
+		switch (map.optFields[i].type)
+	  	{
+	  	case 'A':
+			fprintf(_out_fp, "\t%s:%c:%c", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].cVal);
+			break;
+	  	case 'i':
+			fprintf(_out_fp, "\t%s:%c:%d", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].iVal);
+			break;
+	  	case 'f':
+			fprintf(_out_fp, "\t%s:%c:%f", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].fVal);
+			break;
+	  	case 'Z':
+	  	case 'H':
+			fprintf(_out_fp, "\t%s:%c:%s", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].sVal);
+			break;
+	  	}
+	}
+
+	if (readGroup[0] != 0)
+	  	fprintf(_out_fp, "\t%s:%c:%s", "RG", 'Z', readGroup);
+
+	fprintf(_out_fp, "\n");
+}
+
+
+
+/*------------------------------------------------------------------------------
+ * Initialize the output related variables. Determines the output function
+ * given compressed or not.
+ *----------------------------------------------------------------------------*/
+int
+initOutput ( char *fileName, int compressed )
+{
+	/* Compressed output or not. */
+	if (compressed)
+	{
+		char newFileName[strlen(fileName)+4];
+		sprintf(newFileName, "%s.gz", fileName);
+
+		_out_gzfp = fileOpenGZ(newFileName, "w1f");
+		if (_out_gzfp == Z_NULL)
+	  	{
+			return 0;
+	  	}
+		finalizeOutput = &finalizeGZOutput;
+
+		output = &gzOutputQ;
+		SAMheaderGZ(_out_gzfp);
+	}
+	else
+	{
+	  	_out_fp = fileOpen(fileName, "w");
+	  	if (_out_fp == NULL)
+		{
+	  		return 0;
+		}
+		
+	  	finalizeOutput = &finalizeTXOutput;
+	  	output = &outputQ;
+	  	SAMheaderTX(_out_fp, 1);
+	}
+	buffer[0] = '\0';
 	
-  int i;
+	return 1;
+}
 
-  for ( i = 0; i < map.optSize; i++)
-    {
-      switch (map.optFields[i].type)
+
+
+/*------------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+FILE *
+getOutputFILE (   ) 
+{
+	if(_out_fp != NULL)
+	  	return _out_fp;
+	else if(_out_gzfp != NULL)
+	  	return (FILE *)_out_gzfp;
+	else
+	  	return NULL;
+}
+
+
+
+/*------------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+void
+SAMheaderTX ( FILE *outfp, int check )
+{
+	FILE	*fp;
+	char	 fainame[FILE_NAME_LENGTH];
+	char	 chrom[FILE_NAME_LENGTH];
+	int		 chromlen;
+	char	 rest[FILE_NAME_LENGTH];
+	char	*ret;
+
+	sprintf(fainame, "%s.fai",fileName[0]);
+	fp = fopen(fainame, "r");
+
+	if (fp != NULL)
 	{
-	case 'A':
-	  gzprintf(_out_gzfp, "\t%s:%c:%c", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].cVal);
-	  break;
-	case 'i':
-	  gzprintf(_out_gzfp, "\t%s:%c:%d", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].iVal);
-	  break;
-	case 'f':
-	  gzprintf(_out_gzfp, "\t%s:%c:%f", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].fVal);
-	  break;
-	case 'Z':
-	case 'H':
-	  gzprintf(_out_gzfp, "\t%s:%c:%s", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].sVal);
-	  break;
+		fprintf(outfp, "@HD\tVN:1.4\tSO:unknown\n");
+
+		while (fscanf(fp, "%s\t%d\t", chrom, &chromlen) > 0)
+		{
+		  	ret = fgets(rest, FILE_NAME_LENGTH, fp);
+		  	fprintf(outfp, "@SQ\tSN:%s\tLN:%d\n", chrom, chromlen);
+		}
+		
+		fclose(fp);
+
+		if (readGroup[0] != 0 && sampleName[0] != 0)
+		  	fprintf(outfp, "@RG\tID:%s\tSM:%s\tLB:%s\tPL:illumina\n", readGroup, sampleName, libName);
+
+		fprintf(outfp, "@PG\tID:mrFAST\tPN:mrFAST\tVN:%s.%s\n",  versionNumber, versionNumberF);
 	}
-    }
-
-  if (readGroup[0] != 0)
-    gzprintf(_out_gzfp, "\t%s:%c:%s", "RG", 'Z', readGroup);
-
-  gzprintf(_out_gzfp, "\n");
-}
-
-void outputSAM(FILE *fp, SAM map)
-{
-  fprintf(fp, "%s\t%d\t%s\t%d\t%d\t%s\t%s\t%d\t%d\t%s\t%s",
-	  map.QNAME,
-	  map.FLAG,
-	  map.RNAME,
-	  map.POS,
-	  map.MAPQ,
-	  map.CIGAR,
-	  map.MRNAME,
-	  map.MPOS,
-	  map.ISIZE,
-	  map.SEQ,
-	  map.QUAL);
-
-
-  int i;
-
-  for ( i = 0; i < map.optSize; i++)
-    {
-      switch (map.optFields[i].type)
+	else if (check)
 	{
-	case 'A':
-	  fprintf(fp, "\t%s:%c:%c", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].cVal);
-	  break;
-	case 'i':
-	  fprintf(fp, "\t%s:%c:%d", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].iVal);
-	  break;
-	case 'f':
-	  fprintf(fp, "\t%s:%c:%f", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].fVal);
-	  break;
-	case 'Z':
-	case 'H':
-	  fprintf(fp, "\t%s:%c:%s", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].sVal);
-	  break;
+	  	fprintf(stdout, "WARNING: %s.fai not found, the SAM file(s) will not have a header.\n", fileName[0]);
+	  	fprintf(stdout, "You can generate the .fai file using samtools. Please place it in the same directory with the index to enable SAM headers.\n");
 	}
-    }
 
-  if (readGroup[0] != 0)
-    fprintf(fp, "\t%s:%c:%s", "RG", 'Z', readGroup);
-
-  fprintf(fp, "\n");
-
+	ret++;
 }
 
-void outputQ(SAM map)
+
+
+/*------------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+void
+SAMheaderGZ ( gzFile outgzfp )
 {
+	FILE	*fp;
+	char	 fainame[FILE_NAME_LENGTH];
+	char	 chrom[FILE_NAME_LENGTH];
+	int		 chromlen;
+	char	 rest[FILE_NAME_LENGTH];
+	char	*ret;
 
-  fprintf(_out_fp, "%s\t%d\t%s\t%d\t%d\t%s\t%s\t%d\t%d\t%s\t%s", 
-	  map.QNAME, 
-	  map.FLAG,
-	  map.RNAME, 
-	  map.POS,
-	  map.MAPQ,
-	  map.CIGAR,
-	  map.MRNAME,
-	  map.MPOS,
-	  map.ISIZE,
-	  map.SEQ,
-	  map.QUAL);
+	sprintf(fainame, "%s.fai",fileName[0]);
+	fp = fopen(fainame, "r");
 
-	
-  int i;
-
-  for ( i = 0; i < map.optSize; i++)
-    {
-      switch (map.optFields[i].type)
+	if (fp != NULL)
 	{
-	case 'A':
-	  fprintf(_out_fp, "\t%s:%c:%c", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].cVal);
-	  break;
-	case 'i':
-	  fprintf(_out_fp, "\t%s:%c:%d", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].iVal);
-	  break;
-	case 'f':
-	  fprintf(_out_fp, "\t%s:%c:%f", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].fVal);
-	  break;
-	case 'Z':
-	case 'H':
-	  fprintf(_out_fp, "\t%s:%c:%s", map.optFields[i].tag, map.optFields[i].type, map.optFields[i].sVal);
-	  break;
+		gzprintf(outgzfp, "@HD\tVN:1.4\tSO:unknown\n");
+
+		while (fscanf(fp, "%s\t%d\t", chrom, &chromlen) > 0)
+		{
+		  	ret = fgets(rest, FILE_NAME_LENGTH, fp); 
+		  	gzprintf(outgzfp, "@SQ\tSN:%s\tLN:%d\n", chrom, chromlen);
+		}
+		fclose(fp);
+
+		if (readGroup[0] != 0 && sampleName[0] != 0)
+		  	gzprintf(outgzfp, "@RG\tID:%s\tSM:%s\tLB:%s\tPL:illumina\n", readGroup, sampleName, libName);
+
+		gzprintf(outgzfp, "@PG\tID:mrFAST\tPN:mrFAST\tVN:%s.%s\n",  versionNumber, versionNumberF);
 	}
-    }
-
-  if (readGroup[0] != 0)
-    fprintf(_out_fp, "\t%s:%c:%s", "RG", 'Z', readGroup);
-	
-  fprintf(_out_fp, "\n");
-}
-
-int initOutput ( char *fileName, int compressed)
-{
-  if (compressed)
-    {
-      char newFileName[strlen(fileName)+4];
-      sprintf(newFileName, "%s.gz", fileName);
-
-      _out_gzfp = fileOpenGZ(newFileName, "w1f");
-      if (_out_gzfp == Z_NULL)
+	else
 	{
-	  return 0;
+	  	fprintf(stdout, "WARNING: %s.fai not found, the SAM file(s) will not have a header.\n", fileName[0]);
+	  	fprintf(stdout, "You can generate the .fai file using samtools. Please place it in the same directory with the index to enable SAM headers.\n");
 	}
-      finalizeOutput = &finalizeGZOutput;
 
-      output = &gzOutputQ;
-      SAMheaderGZ(_out_gzfp);
-    }
-  else
-    {
-      _out_fp = fileOpen(fileName, "w");
-      if (_out_fp == NULL)
-	{
-	  return 0;
-	}
-      finalizeOutput = &finalizeTXOutput;
-      output = &outputQ;
-      SAMheaderTX(_out_fp, 1);
-    }
-  buffer[0] = '\0';
-  return 1;
+	ret++;
 }
-
-FILE* getOutputFILE() 
-{
-  if(_out_fp != NULL)
-    return _out_fp;
-  else if(_out_gzfp != NULL)
-    return _out_gzfp;
-  else
-    return NULL;
-}
-void SAMheaderTX(FILE *outfp, int check)
-{
-  FILE *fp;
-  char fainame[FILE_NAME_LENGTH];
-  char chrom[FILE_NAME_LENGTH];
-  int chromlen;
-  char rest[FILE_NAME_LENGTH];
-  char *ret;
-
-  sprintf(fainame, "%s.fai",fileName[0]);
-  fp = fopen(fainame, "r");
-  if (fp != NULL){
-
-    fprintf(outfp, "@HD\tVN:1.4\tSO:coordinate\n");
-    
-    while (fscanf(fp, "%s\t%d\t", chrom, &chromlen) > 0){
-      ret = fgets(rest, FILE_NAME_LENGTH, fp);
-      fprintf(outfp, "@SQ\tSN:%s\tLN:%d\n", chrom, chromlen);
-    }
-    fclose(fp);
-
-    if (readGroup[0] != 0 && sampleName[0] != 0)
-      fprintf(outfp, "@RG\tID:%s\tSM:%s\tLB:%s\tPL:illumina\n", readGroup, sampleName, libName);
-    
-    fprintf(outfp, "@PG\tID:mrFAST\tPN:mrFAST\tVN:%s.%s\n",  versionNumber, versionNumberF);
-  }
-  else if (check){
-    fprintf(stdout, "WARNING: %s.fai not found, the SAM file(s) will not have a header.\n", fileName[0]);
-    fprintf(stdout, "You can generate the .fai file using samtools. Please place it in the same directory with the index to enable SAM headers.\n");
-  }
-
-  ret++;
-}
-
-void SAMheaderGZ(gzFile outgzfp)
-{
-  FILE *fp;
-  char fainame[FILE_NAME_LENGTH];
-  char chrom[FILE_NAME_LENGTH];
-  int chromlen;
-  char rest[FILE_NAME_LENGTH];
-  char *ret;
-
-  sprintf(fainame, "%s.fai",fileName[0]);
-  fp = fopen(fainame, "r");
-
-  if (fp != NULL){
-    gzprintf(outgzfp, "@HD\tVN:1.4\tSO:coordinate\n");
-
-    while (fscanf(fp, "%s\t%d\t", chrom, &chromlen) > 0){
-      ret = fgets(rest, FILE_NAME_LENGTH, fp); 
-      gzprintf(outgzfp, "@SQ\tSN:%s\tLN:%d\n", chrom, chromlen);
-    }
-    fclose(fp);
-
-    if (readGroup[0] != 0 && sampleName[0] != 0)
-      gzprintf(outgzfp, "@RG\tID:%s\tSM:%s\tLB:%s\tPL:illumina\n", readGroup, sampleName, libName);
-
-    gzprintf(outgzfp, "@PG\tID:mrFAST\tPN:mrFAST\tVN:%s.%s\n",  versionNumber, versionNumberF);
-  }
-  else{
-    fprintf(stdout, "WARNING: %s.fai not found, the SAM file(s) will not have a header.\n", fileName[0]);
-    fprintf(stdout, "You can generate the .fai file using samtools. Please place it in the same directory with the index to enable SAM headers.\n");
-  }
-
-  ret++;
-}
-
-
-
