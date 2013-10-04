@@ -1,5 +1,6 @@
 /*
- * Copyright (c) <2008 - 2012>, University of Washington, Simon Fraser University, Bilkent University
+ * Copyright (c) <2008 - 2020>, University of Washington, Simon Fraser University, 
+ * Bilkent University and Carnegie Mellon University
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -11,6 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or other
  *   materials provided with the distribution.
  * - Neither the names of the University of Washington, Simon Fraser University, 
+ *   Bilkent University, Carnegie Mellon University,
  *   nor the names of its contributors may be
  *   used to endorse or promote products derived from this software without specific
  *   prior written permission.
@@ -26,19 +28,19 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 
-/*
   Authors: 
   Farhad Hormozdiari
+	  farhadh AT uw DOT edu
   Faraz Hach
+	  fhach AT cs DOT sfu DOT ca
   Can Alkan
-  Emails: 
-  farhadh AT uw DOT edu
-  fhach AT cs DOT sfu DOT ca
-  calkan AT cs DOT bilkent DOT edu DOT tr
+	  calkan AT gmail DOT com
+  Hongyi Xin
+	  gohongyi AT gmail DOT com
+  Donghyuk Lee
+	  bleups AT gmail DOT com
 */
-
 
 
 #include <stdio.h>
@@ -49,147 +51,215 @@
 #include "Common.h"
 
 
+/* ************************************************************************** */
+/* ************************************************************************** */
+/* 								GLOBAL VARIABLES                              */
+/* ************************************************************************** */
+/* ************************************************************************** */
+
 unsigned short 			SEQ_LENGTH = 0;
 long long		       	memUsage = 0;
-/**********************************************/
-FILE *fileOpen(char *fileName, char *mode)
-{
-  FILE *fp;
-  fp = fopen (fileName, mode);
-  if (fp == NULL)
-    {
-      fprintf(stdout, "Error: Cannot Open the file %s\n", fileName);
-      fflush(stdout);
-      exit(0);
-    }
-  return fp;
-}
-/**********************************************/
-gzFile fileOpenGZ(char *fileName, char *mode)
-{
-  gzFile gzfp;
-  gzfp = gzopen (fileName, mode);
-  if (gzfp == Z_NULL)
-    {
-      fprintf(stdout, "Error: Cannot Open the file %s\n", fileName);
-      fflush(stdout);
-      exit(0);
-    }
-  return gzfp;
-}
-/**********************************************/
-double getTime(void)
-{
-  struct timeval t;
-  gettimeofday(&t, NULL);
-  return t.tv_sec+t.tv_usec/1000000.0;
-}
 
-/**********************************************/
-char reverseComplementChar(char c)
-{
-  char ret;
-  switch (c)
-    {
-    case 'A': 
-      ret = 'T';
-      break;
-    case 'T':
-      ret = 'A';
-      break;
-    case 'C':	
-      ret = 'G';
-      break;
-    case 'G':
-      ret = 'C';
-      break;
-    default:
-      ret = 'N';
-      break;
-    }
-  return ret;
-}
-/**********************************************/
-void reverseComplement (char *seq, char *rcSeq , int length)
-{
-  int i;
-  for (i=0; i<length; i++)
-    {
-      rcSeq[i]=reverseComplementChar (seq[length-1-i]) ;
-    }
-}
-/**********************************************/
-void * getMem(size_t size)
-{
-  void *ret;
-  ret = malloc(size);
-  if (ret == NULL){
-    fprintf(stderr, "Cannot allocate memory. Currently addressed memory = %0.2f MB, requested memory = %0.2f MB.\nCheck the available main memory, and if you have user limits (ulimit -v).\n", getMemUsage(), (float)(size/1048576.0));
-    exit(0);
-  }
-  memUsage+=size;
-  return ret;
-}
-/**********************************************/
-void reMem(void *ptr, size_t oldsize, size_t newsize)
-{
-  ptr = realloc(ptr, newsize);
-  if (ptr == NULL){
-    fprintf(stderr, "Cannot reallocate memory. Currently addressed memory = %0.2f MB, requested memory = %0.2f MB.\nCheck the available main memory, and if you have user limits (ulimit -v).\n", getMemUsage(), (double)newsize);
-    exit(0);
-  }
-  memUsage+=newsize-oldsize;
-}
-/**********************************************/
-void freeMem(void *ptr, size_t size)
-{
-  memUsage-=size;
-  free(ptr);
-}
-/**********************************************/
-double getMemUsage()
-{
-  return memUsage/1048576.0;
-}
-/**********************************************/
-void reverse (char *seq, char *rcSeq , int length)
-{
-  int i;
-  int l = length;
-  if(l != strlen(seq))
-    l = strlen(seq);
-  for (i=0; i<l; i++)
-    {
-      rcSeq[i]=seq[l-1-i] ;
-    }
-  rcSeq[l] = '\0';
+/* ************************************************************************** */
+/* ************************************************************************** */
+/* 								GLOBAL VARIABLES                              */
+/* ************************************************************************** */
+/* ************************************************************************** */
 
-}
-/**********************************************/
-void stripPath(char *full, char **path, char **fileName)
-{
-  int i;
-  int pos = -1;
 
-  for (i=strlen(full)-1; i>=0; i--)
-    {
-      if (full[i]=='/')
+/*------------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+FILE *
+fileOpen ( char *fileName, char *mode )
+{
+	FILE *fp;
+	fp = fopen (fileName, mode);
+	if (fp == NULL)
 	{
-	  pos = i;
-	  break;
+		fprintf(stdout, "Error: Cannot Open the file %s\n", fileName);
+		fflush(stdout);
+		exit(0);
+	}
+	return fp;
+}
+
+
+
+/*------------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+gzFile
+fileOpenGZ ( char *fileName, char *mode )
+{
+	gzFile gzfp;
+	gzfp = gzopen (fileName, mode);
+	if (gzfp == Z_NULL)
+	{
+		fprintf(stdout, "Error: Cannot Open the file %s\n", fileName);
+		fflush(stdout);
+		exit(0);
+	}
+	return gzfp;
+}
+
+
+
+/*------------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+double
+getTime ( void )
+{
+  	struct timeval t;
+  	gettimeofday(&t, NULL);
+  	return t.tv_sec+t.tv_usec/1000000.0;
+}
+
+
+
+/*------------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+char
+reverseComplementChar ( char c )
+{
+	char ret;
+	switch (c)
+	{
+	  case 'A': 
+		ret = 'T';
+		break;
+	  case 'T':
+		ret = 'A';
+		break;
+	  case 'C':	
+		ret = 'G';
+		break;
+	  case 'G':
+		ret = 'C';
+		break;
+	  default:
+		ret = 'N';
+		break;
+	}
+	return ret;
+}
+
+
+
+/*------------------------------------------------------------------------------
+ * Reverses the given sequence seq into rcSeq.
+ *----------------------------------------------------------------------------*/
+void
+reverseComplement ( char *seq, char *rcSeq , int length )
+{
+  	int i;
+  	for (i=0; i<length; i++)
+    {
+      	rcSeq[i]=reverseComplementChar (seq[length-1-i]) ;
+    }
+}
+
+
+
+/*------------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+void *
+getMem ( size_t size )
+{
+	void *ret;
+	ret = malloc(size);
+	if (ret == NULL)
+	{
+	  	fprintf(stderr, "Cannot allocate memory. Currently addressed memory = %0.2f MB, requested memory = %0.2f MB.\nCheck the available main memory, and if you have user limits (ulimit -v).\n", getMemUsage(), (float)(size/1048576.0));
+	  	exit(0);
+	}
+	memUsage+=size;
+	return ret;
+}
+
+
+
+/*------------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+void
+reMem ( void *ptr, size_t oldsize, size_t newsize )
+{
+  	ptr = realloc(ptr, newsize);
+  	if (ptr == NULL)
+	{
+    	fprintf(stderr, "Cannot reallocate memory. Currently addressed memory = %0.2f MB, requested memory = %0.2f MB.\nCheck the available main memory, and if you have user limits (ulimit -v).\n", getMemUsage(), (double)newsize);
+    	exit(0);
+  	}
+  	memUsage+=newsize-oldsize;
+}
+
+
+
+/*------------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+void
+freeMem ( void *ptr, size_t size )
+{
+  	memUsage-=size;
+  	free(ptr);
+}
+
+
+
+/*------------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+double
+getMemUsage (   )
+{
+  	return memUsage/1048576.0;
+}
+
+
+
+/*------------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+void
+reverse (char *seq, char *rcSeq , int length )
+{
+	int i;
+	int l = length;
+	
+	if(l != strlen(seq))
+	  	l = strlen(seq);
+
+	for (i=0; i<l; i++)
+	{
+		rcSeq[i]=seq[l-1-i] ;
+	}
+	rcSeq[l] = '\0';
+}
+
+
+
+/*------------------------------------------------------------------------------
+ *----------------------------------------------------------------------------*/
+void
+stripPath ( char *full, char **path, char **fileName )
+{
+	int i;
+	int pos = -1;
+
+	for (i=strlen(full)-1; i>=0; i--)
+	{
+		if (full[i]=='/')
+		{
+			pos = i;
+			break;
+	  	}
 	}
 
-    }
-
-  if (pos != -1)
-    {
-      sprintf(*fileName, "%s%c", (full+pos+1), '\0');
-      full[pos+1]='\0';
-      sprintf(*path,"%s%c", full, '\0');
-    }
-  else
-    {
-      sprintf(*fileName, "%s%c", full, '\0');
-      sprintf(*path,"%c", '\0');
-    }
+	if (pos != -1)
+	{
+		sprintf(*fileName, "%s%c", (full+pos+1), '\0');
+		full[pos+1]='\0';
+		sprintf(*path,"%s%c", full, '\0');
+	}
+	else
+	{
+		sprintf(*fileName, "%s%c", full, '\0');
+		sprintf(*path,"%c", '\0');
+	}
 }
