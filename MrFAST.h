@@ -1,5 +1,6 @@
 /*
- * Copyright (c) <2008 - 2020>, University of Washington, Simon Fraser University, Bilkent University
+ * Copyright (c) <2008 - 2020>, University of Washington, Simon Fraser University, 
+ * Bilkent University and Carnegie Mellon University
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -11,6 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or other
  *   materials provided with the distribution.
  * - Neither the names of the University of Washington, Simon Fraser University, 
+ *   Bilkent University, Carnegie Mellon University,
  *   nor the names of its contributors may be
  *   used to endorse or promote products derived from this software without specific
  *   prior written permission.
@@ -26,21 +28,19 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 
-
-/*
   Authors: 
   Farhad Hormozdiari
+	  farhadh AT uw DOT edu
   Faraz Hach
+	  fhach AT cs DOT sfu DOT ca
   Can Alkan
-  Emails: 
-  farhadh AT uw DOT edu
-  fhach AT cs DOT sfu DOT ca
-  calkan AT cs DOT bilkent DOT edu DOT tr
+	  calkan AT gmail DOT com
+  Hongyi Xin
+	  gohongyi AT gmail DOT com
+  Donghyuk Lee
+	  bleups AT gmail DOT com
 */
-
-
 
 #ifndef __MR_FAST__
 #define __MR_FAST__
@@ -53,13 +53,21 @@
 
 
 // Pair is used to pre-processing and making the read index table
+/*
+ * A small struct for sorting (used in preProcessReads()) read sequences with
+ * respect to their hash values.
+ */
 typedef struct
 {
-  int hv;
-  //char hv[50];
-  int readNumber;
+	int hv;
+	int readNumber;
 } Pair;
 
+
+
+/*
+ * This seems not to be used anywhere.
+ */
 typedef struct
 {
   int hv;
@@ -67,51 +75,86 @@ typedef struct
 } ReadIndexTable;
 
 
+
+/*
+ * Used in best mapping mode of single-end mode mapping or in the output of the
+ * paired-end mode.
+ */
 typedef struct 
 {
-  int loc;
-  char dir;
-  int err;
-  float score;
-  char md[MAX_CIGAR_SIZE];
-  char chr[20];
-  char cigar[MAX_CIGAR_SIZE];
-  int cigarSize;
-  int mdSize;
+	/* Mapping location in the reference genome. */
+	int		loc;
+
+	/* Direction of the mapping. */
+	char	dir;
+
+	/* Edit distance. */
+	int		err;
+	
+	float	score;
+
+	/* MD output. */
+	char	md[MAX_CIGAR_SIZE];
+	int		mdSize;
+
+	/* CIGAR ouput. */
+	char	cigar[MAX_CIGAR_SIZE];
+	int		cigarSize;	
 } FullMappingInfo;
 
+
+
+/*
+ * Used in best mapping mode to store information for each read.
+ */
 typedef struct
 {
-  int loc;
-  char dir;
-  int err;
-  float score;
-  char md[MAX_CIGAR_SIZE];
-  char chr[20];
-  char cigar[MAX_CIGAR_SIZE];
-  int cigarSize;
-  int mdSize;
-  double tprob;
+	int		loc;
+	char	dir;
+	int		err;
+	float	score;
+	char	md[MAX_CIGAR_SIZE];
+	char	chr[MAX_CIGAR_SIZE]; /* difference from FullMappingInfo */
+	char	cigar[MAX_CIGAR_SIZE];
+	int		cigarSize;
+	int		mdSize;
+	double	tprob;				/* difference from FullMappingInfo. */
 } BestFullMappingInfo;
 
+
+
+/* A node in the linked list. MAP_CHUNKS = 15 and MAX_CIGAR_SIZE = 100. Used in
+ * MappingInfo. A MappingLocations struct can store MAP_CHUNKS mapping
+ * results. If there are more than MAP_CHUNKS mapping results, it is connected
+ * via linked list in MappingInfo struct. */
 typedef struct lc
 {
-  char md[MAP_CHUNKS][MAX_CIGAR_SIZE];
-  int mdSize[MAP_CHUNKS];
+	char	md[MAP_CHUNKS][MAX_CIGAR_SIZE];
+	int		mdSize[MAP_CHUNKS];
 
-  char cigar[MAP_CHUNKS][MAX_CIGAR_SIZE];
-  int cigarSize[MAP_CHUNKS];
+	char	cigar[MAP_CHUNKS][MAX_CIGAR_SIZE];
+	int		cigarSize[MAP_CHUNKS];
 
-  int err[MAP_CHUNKS];
-  int loc[MAP_CHUNKS];
-  struct lc *next;
+	int			 err[MAP_CHUNKS];
+	int			 loc[MAP_CHUNKS];
+	struct lc	*next;
 } MappingLocations;
 
+
+
+/*
+ * This is used for storing mapping information in the paired-end mode. Did not
+ * specifically check if it is used anywhere else but it is not used in best
+ * mapping mode.
+ */
 typedef struct inf
 {
-  int size;
-  MappingLocations *next;
+	/* size is not the number of MappingLocations structs. It is multiplied by
+	 * MAP_CHUNKS. */
+	int					 size;
+	MappingLocations	*next;
 } MappingInfo;
+
 
 
 typedef struct 
@@ -148,7 +191,7 @@ int msfHashVal(char *);
 int backwardEditDistance2SSE2(char *a, int lena, char *b,int lenb);
 int forwardEditDistance2SSE2(char *a, int lena, char *b,int lenb);
 
-double mapProb(int, char *, char *, int, int);
+double mapProb(int, char *, int, int);
 int mapQ(int);
 int forwardEditDistanceSSE2G(char *a, int lena, char *b,int lenb);
 int backwardEditDistanceSSE2G(char *a, int lena, char *b,int lenb);
