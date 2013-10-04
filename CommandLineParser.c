@@ -1,5 +1,6 @@
 /*
- * Copyright (c) <2008 - 2020>, University of Washington, Simon Fraser University, Bilkent University 
+ * Copyright (c) <2008 - 2020>, University of Washington, Simon Fraser University, 
+ * Bilkent University and Carnegie Mellon University
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -11,6 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or other
  *   materials provided with the distribution.
  * - Neither the names of the University of Washington, Simon Fraser University, 
+ *   Bilkent University, Carnegie Mellon University,
  *   nor the names of its contributors may be
  *   used to endorse or promote products derived from this software without specific
  *   prior written permission.
@@ -26,18 +28,20 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 
-/*
   Authors: 
   Farhad Hormozdiari
+	  farhadh AT uw DOT edu
   Faraz Hach
+	  fhach AT cs DOT sfu DOT ca
   Can Alkan
-  Emails: 
-  farhadh AT uw DOT edu
-  fhach AT cs DOT sfu DOT ca
-  calkan AT cs DOT bilkent DOT edu DOT tr
+	  calkan AT gmail DOT com
+  Hongyi Xin
+	  gohongyi AT gmail DOT com
+  Donghyuk Lee
+	  bleups AT gmail DOT com
 */
+
 
 
 #include <stdio.h>
@@ -130,6 +134,11 @@ int parseCommandLine (int argc, char *argv[])
       {0,  0,  0, 0},
     };
 
+  if (argc == 1){
+    printHelp();
+    return 0;
+  }
+
   while ( (o = getopt_long ( argc, argv, "hvn:e:o:u:i:s:x:y:w:l:m:c:a:d:g:p:r:", longOptions, &index)) != -1 )
     {
       switch (o)
@@ -209,6 +218,7 @@ int parseCommandLine (int argc, char *argv[])
 	}
 
     }
+  
   if (indexingMode + searchingMode != 1)
     {
       fprintf(stdout, "ERROR: Indexing / Searching mode should be selected\n");
@@ -224,7 +234,7 @@ int parseCommandLine (int argc, char *argv[])
 
   if ( indexingMode )
     {
-      CONTIG_SIZE		= 120000000;
+      CONTIG_SIZE	= 120000000;
       CONTIG_MAX_SIZE	= 250000000;
 
       if (fastaFile == NULL)
@@ -244,8 +254,8 @@ int parseCommandLine (int argc, char *argv[])
 
   if ( searchingMode )
     {
-      CONTIG_SIZE		= 300000000;
-      CONTIG_MAX_SIZE	= 300000000;
+      CONTIG_SIZE	= 330000000;
+      CONTIG_MAX_SIZE	= 330000000;
       
       if (pairedEndModeMP && pairedEndModePE){
 	fprintf(stdout, "ERROR: Use either --pe or --mp, not both. \n");
@@ -396,10 +406,11 @@ void printHelp()
   fprintf(stdout," -e [int]\t\tMaximum allowed %s (default 4%% of the read length).\n", errorType);
   fprintf(stdout," --min [int]\t\tMin distance allowed between a pair of end sequences.\n");
   fprintf(stdout," --max [int]\t\tMax distance allowed between a pair of end sequences.\n");
-  fprintf(stdout," --maxoea [int]\t\tMax number of One End Anchored (OEA) returned for each read pair.\n\t\t\tWe recommend 100 or above for NovelSeq use.\n");
-  fprintf(stdout," --maxdis [int]\t\tMax number of discordant map locations returned for each read pair.\n\t\t\tWe recommend 300 or above for VariationHunter use.\n");
+  fprintf(stdout," --maxoea [int]\t\tMax number of One End Anchored (OEA) returned for each read pair.\n\t\t\tWe recommend 100 or above for NovelSeq use. Default = 100.\n");
+  fprintf(stdout," --maxdis [int]\t\tMax number of discordant map locations returned for each read pair.\n\t\t\tWe recommend 300 or above for VariationHunter use. Default = 300.\n");
   fprintf(stdout," --crop [int]\t\tTrim the reads to the given length.\n");
   fprintf(stdout," --sample [string]\tSample name to be added to the SAM header (optional).\n");
   fprintf(stdout," --rg [string]\t\tRead group ID to be added to the SAM header (optional).\n");
   fprintf(stdout," --lib [string]\t\tLibrary name to be added to the SAM header (optional).\n");
+  fprintf(stdout,"\n\n");
 }
