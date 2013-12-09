@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS = -c -O3 -Wall -msse -msse2 
-LDFLAGS = -lz -lm 
+CFLAGS = -c -O3 -Wall -msse -msse2 -pg
+LDFLAGS = -lz -lm -pg
 SOURCES = baseFAST.c CommandLineParser.c Common.c HashTable.c MrFAST.c Output.c Reads.c RefGenome.c 
 OBJECTS = $(SOURCES:.c=.o)
 EXECUTABLE = mrfast
