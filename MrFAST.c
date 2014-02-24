@@ -139,13 +139,6 @@ int direction2[SEQ_MAX_LENGTH][SEQ_MAX_LENGTH];
 
 __m128i MASK;
 
-/* counters */
-int totalaln = 0;
-long totaltime = 0;
-long totalbuf = 0;
-long totalsse = 0;
-long totalfail = 0;
-long totalpassedaln = 0;
 
 /**************************************************Methods***************************************************/
 int smallEditDistanceF(char *a, int lena, char *b, int lenb)
@@ -5439,7 +5432,6 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
 
     if (skip_edit_distance == 0) {
 
-      totalbuf++;
       if (errThreshold == 2) {
 	err = verifySingleEndEditDistance2(genLoc, _tmpSeq,
 					   leftSeqLength, _tmpSeq + a, rightSeqLength,
@@ -5469,7 +5461,6 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
       
 
     if (err != -1) {
-      totalpassedaln++;
       generateSNPSAM(matrix, strlen(matrix), editString);
       generateCigar(matrix, strlen(matrix), cigar);
 
@@ -5537,7 +5528,7 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
 	    setFullMappingInfo(readNumber, map_location + _msf_refGenOffset, direction, err, 0, editString, _msf_refGenName, cigar );
 	  }
       }
-    } else totalfail++;
+    } 
   }
 }
 
@@ -5624,11 +5615,6 @@ int mapAllSingleEndSeq() {
     }
   }
   freeMem(sort_input, key_number * sizeof(key_struct));
-
-  /* temp counters */
-  fprintf(stdout, "Total passed to SSE: %ld\nTotal fail: %ld\n", totalbuf, totalfail);
-  fprintf(stdout, "Total passed DP after SSE: %ld\n\n", totalpassedaln);
-  totalaln=0;  totalpassedaln=0; totalbuf=0; totalsse=0; 
 
   return 1;
 }
@@ -5765,8 +5751,7 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
     map_location = 0;
 
     if (skip_edit_distance == 0) {
-      totalbuf++;
-      
+     
       if (errThreshold == 2) {
 	err = verifySingleEndEditDistance2(genLoc, _tmpSeq,
 					   leftSeqLength, _tmpSeq + a, rightSeqLength,
@@ -5785,7 +5770,7 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
 						   middleSeqLength, matrix, &map_location, _tmpHashValue);
       }
     } else {
-      err = -1; totalfail++;
+      err = -1; 
     }
 
     int j = 0;
@@ -5799,7 +5784,6 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
 
     if (err != -1) {
       int i = 0;
-      totalpassedaln++;
       /* calkan counter */
       mappingCnt++;
    
