@@ -2751,11 +2751,9 @@ void preProcessReads() {
   _msf_sort_seqList = getMem(_msf_seqListSize * sizeof(Pair));
   for (i = 0; i < _msf_seqListSize; i++) {
     _msf_sort_seqList[i].hv = hashVal(_msf_seqList[i].seq);
-    //_msf_sort_seqList[i].hv = _msf_seqList[i].hashValue[0];
-
-    _msf_sort_seqList[i].readNumber = i;
+    _msf_sort_seqList[i].readNumber = i;    
   }
-
+  
   qsort(_msf_sort_seqList, _msf_seqListSize, sizeof(Pair), compare);
 
   _msf_map_sort_seqList = getMem(_msf_seqListSize * sizeof(int));

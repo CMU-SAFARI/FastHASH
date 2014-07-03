@@ -200,10 +200,18 @@ int readAllReads(char *fileName1,
   // Calculating the Maximum # of sequences
   if (*fastq)
     {
+      if (maxCnt % 4 != 0){
+        fprintf(stderr, "Input FASTQ file seems to be truncated. Number of lines: %d. Exiting.\n", maxCnt);
+	exit (1);
+      }
       maxCnt /= 4;
     }
   else
     {
+      if (maxCnt % 2 != 0){
+        fprintf(stderr, "Input FASTQ file seems to be truncated. Number of lines: %d. Exiting.\n", maxCnt);
+	exit (1);
+      }
       maxCnt /= 2;
     }
 
