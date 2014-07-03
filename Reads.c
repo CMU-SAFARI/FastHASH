@@ -50,6 +50,7 @@
 #include <zlib.h>
 #include "Common.h"
 #include "Reads.h"
+#include "HashTable.h"
 
 #define CHARCODE(a) (a=='A' ? 0 : (a=='C' ? 1 : (a=='G' ? 2 : (a=='T' ? 3 : 4))))
 
@@ -122,7 +123,6 @@ int readAllReads(char *fileName1,
   Read *list = NULL;
 
   int clipped = 0;
-
 
   if (!compressed)
     {
@@ -375,13 +375,11 @@ int readAllReads(char *fileName1,
 	  list[seqCnt].qual = list[seqCnt].rseq + _mtmp+1;
 	  list[seqCnt].name = list[seqCnt].qual + _mtmp+1;
                         
-	  list[seqCnt].hashValue = getMem(sizeof(short)*_mtmp);
-	  list[seqCnt].rhashValue = getMem(sizeof(short)*_mtmp);
 
 	  list[seqCnt].readNumber = seqCnt;			
 
 	  reverseComplement(seq1, rseq1, _mtmp);
-	  //rseq1[_mtmp] =  '\0';
+
 	  int i;
 
 	  list[seqCnt].hits[0] = 0;
@@ -392,47 +390,9 @@ int readAllReads(char *fileName1,
 	      list[seqCnt].rseq[i] = rseq1[i] ;
 	      list[seqCnt].qual[i] = qual1[i];
 	    }
-	list[seqCnt].rseq[_mtmp]=list[seqCnt].qual[_mtmp]='\0';	
+	  
+	  list[seqCnt].rseq[_mtmp]=list[seqCnt].qual[_mtmp]='\0';	
 	
-  //MAKE HASH VALUE
-	  short code = 0;
-
-	  for(i=0; i < 4; i++)
-	    code = code * 5 + CHARCODE(list[seqCnt].seq[i]);
-	  list[seqCnt].hashValue[0] = code;
-
-
-	  for(i = 1; i < _mtmp-3; i++)
-	    {
-	      list[seqCnt].hashValue[i] = (list[seqCnt].hashValue[i-1] - 125 * CHARCODE(seq1[i-1])) * 5 + CHARCODE(seq1[i+3]);
-	    }
-
-
-	  code = 0;
-	  for(i=0; i < 4; i++)
-	    code = code * 5 + CHARCODE(list[seqCnt].rseq[i]);
-	  list[seqCnt].rhashValue[0] = code;
-
-
-	  for(i = 1; i < _mtmp-3; i++)
-	    {
-	      list[seqCnt].rhashValue[i] = (list[seqCnt].rhashValue[i-1] - 125 * CHARCODE(rseq1[i-1])) * 5 + CHARCODE(rseq1[i+3]);
-	    }
-			
-	  int j = 0;
-	  int tmpSize = _mtmp / (errThreshold+1);
-
-	  list[seqCnt].hashValSampleSize = getMem(sizeof(int)*(errThreshold+1));
-	  for(i=0; i < errThreshold+1; i++)
-	    {
-	      code = 0;
-	      for(j = 0; j < tmpSize; j++)
-		{
-		  code = code * 5 + CHARCODE(list[seqCnt].seq[i*tmpSize+j]);
-		}
-	      list[seqCnt].hashValSampleSize[i] = code;	
-	    }
-
 	  sprintf(list[seqCnt].name,"%s%c", ((char*)name1)+1,'\0');
 
 	  seqCnt++;
@@ -456,12 +416,10 @@ int readAllReads(char *fileName1,
 	  list[seqCnt].qual = list[seqCnt].rseq + _mtmp+1;
 	  list[seqCnt].name = list[seqCnt].qual + _mtmp+1;
 
-	  list[seqCnt].hashValue = getMem(sizeof(short)*_mtmp);
-	  list[seqCnt].rhashValue = getMem(sizeof(short)*_mtmp);
 	  list[seqCnt].readNumber = seqCnt;
 
 	  reverseComplement(seq1, rseq1, _mtmp);
-	  //rseq1[_mtmp] =  '\0';
+
 	  int i;
 
 	  list[seqCnt].hits[0] = 0;
@@ -477,47 +435,7 @@ int readAllReads(char *fileName1,
 	  name1[tmplen]='\0';
 	  list[seqCnt].rseq[_mtmp]=list[seqCnt].qual[_mtmp]='\0';
 
-	  //MAKE HASH VALUE
-	  short code = 0;
-
-	  for(i=0; i < 4; i++)
-	    code = code * 5 + CHARCODE(list[seqCnt].seq[i]);
-	  list[seqCnt].hashValue[0] = code;
-
-
-	  for(i = 1; i < _mtmp-3; i++)
-	    {
-	      list[seqCnt].hashValue[i] = (list[seqCnt].hashValue[i-1] - 125 * CHARCODE(seq1[i-1])) * 5 + CHARCODE(seq1[i+3]);
-	    }
-
-
-	  code = 0;
-	  for(i=0; i < 4; i++)
-	    code = code * 5 + CHARCODE(list[seqCnt].rseq[i]);
-	  list[seqCnt].rhashValue[0] = code;
-
-
-	  for(i = 1; i < _mtmp-3; i++)
-	    {
-	      list[seqCnt].rhashValue[i] = (list[seqCnt].rhashValue[i-1] - 125 * CHARCODE(rseq1[i-1])) * 5 + CHARCODE(rseq1[i+3]);
-	    }
-
-	  int j = 0;
-	  int tmpSize = _mtmp / (errThreshold+1);
-
-	  list[seqCnt].hashValSampleSize = getMem(sizeof(int)*(errThreshold+1));
-	  for(i=0; i < errThreshold+1; i++)
-	    {
-	      code = 0;
-	      for(j = 0; j < tmpSize; j++)
-		{
-		  code = code * 5 + CHARCODE(list[seqCnt].seq[i*tmpSize+j]);
-		}
-	      list[seqCnt].hashValSampleSize[i] = code;
-	    }
-
 	  sprintf(list[seqCnt].name,"%s%c", ((char*)name1)+1,'\0');
-
 
 	  seqCnt++;
 
@@ -528,8 +446,6 @@ int readAllReads(char *fileName1,
 	  list[seqCnt].qual = list[seqCnt].rseq + _mtmp+1;
 	  list[seqCnt].name = list[seqCnt].qual + _mtmp+1;
 
-	  list[seqCnt].hashValue = getMem(sizeof(short)*_mtmp);
-	  list[seqCnt].rhashValue = getMem(sizeof(short)*_mtmp);
 	  list[seqCnt].readNumber = seqCnt;
 
 	  reverseComplement(seq2, rseq2, _mtmp);
@@ -548,45 +464,6 @@ int readAllReads(char *fileName1,
 	  name2[tmplen]='\0';
 	  list[seqCnt].rseq[_mtmp]=list[seqCnt].qual[_mtmp]='\0';
 
-	  //MAKE HASH VALUE
-	  code = 0;
-
-	  for(i=0; i < 4; i++)
-	    code = code * 5 + CHARCODE(list[seqCnt].seq[i]);
-	  list[seqCnt].hashValue[0] = code;
-
-
-	  for(i = 1; i < _mtmp-3; i++)
-	    {
-	      list[seqCnt].hashValue[i] = (list[seqCnt].hashValue[i-1] - 125 * CHARCODE(seq1[i-1])) * 5 + CHARCODE(seq1[i+3]);
-	    }
-
-
-	  code = 0;
-	  for(i=0; i < 4; i++)
-	    code = code * 5 + CHARCODE(list[seqCnt].rseq[i]);
-	  list[seqCnt].rhashValue[0] = code;
-
-
-	  for(i = 1; i < _mtmp-3; i++)
-	    {
-	      list[seqCnt].rhashValue[i] = (list[seqCnt].rhashValue[i-1] - 125 * CHARCODE(rseq1[i-1])) * 5 + CHARCODE(rseq1[i+3]);
-	    }
-
-	  j = 0;
-	  tmpSize = _mtmp / (errThreshold+1);
-
-	  list[seqCnt].hashValSampleSize = getMem(sizeof(int)*(errThreshold+1));
-	  for(i=0; i < errThreshold+1; i++)
-	    {
-	      code = 0;
-	      for(j = 0; j < tmpSize; j++)
-		{
-		  code = code * 5 + CHARCODE(list[seqCnt].seq[i*tmpSize+j]);
-		}
-	      list[seqCnt].hashValSampleSize[i] = code;
-	    }
-	
 	  sprintf(list[seqCnt].name,"%s%c", ((char*)name2)+1,'\0');
 
 	  seqCnt++;
@@ -627,8 +504,6 @@ int readAllReads(char *fileName1,
 	}
     }
 
-  //qsort(list, seqCnt, sizeof(Read), toCompareRead);
-
   adjustQual(list, seqCnt);
 
   *seqList = list;
@@ -662,41 +537,6 @@ void loadSamplingLocations(int **samplingLocs, int * samplingLocsSize)
       if ( samLocs[i] + WINDOW_SIZE > SEQ_LENGTH)
 	samLocs[i] = SEQ_LENGTH - WINDOW_SIZE;
     }
-
-  // Outputing the sampling locations
-
-  /*
-
-    int j;
-    for (i=0; i<SEQ_LENGTH; i++)
-    {
-    fprintf(stdout, "-");
-    }
-    fprintf(stdout, "\n");
-
-    for ( i=0; i<samLocsSize; i++ )
-    {
-    for ( j=0; j<samLocs[i]; j++ )
-    {
-    fprintf(stdout," ");
-    }
-    for (j=0; j<WINDOW_SIZE; j++)
-    {
-    fprintf(stdout,"+");
-    }
-    fprintf(stdout, "\n");
-    fflush(stdout);
-    }
-	
-
-    for ( i=0; i<SEQ_LENGTH; i++ )
-    {
-    fprintf(stdout, "-");
-    }
-    fprintf(stdout, "\n");
-
-  */
-
   *samplingLocs = samLocs;
   *samplingLocsSize = samLocsSize;
   _r_samplingLocs = samLocs;

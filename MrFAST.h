@@ -59,13 +59,6 @@ typedef struct
   int readNumber;
 } Pair;
 
-typedef struct
-{
-  int hv;
-  unsigned int *seqInfo;
-} ReadIndexTable;
-
-
 typedef struct 
 {
   int loc;
@@ -141,8 +134,6 @@ int mapAllSingleEndSeq();
 
 void generateCigarFromMD(char *, int, char *);
 
-int msfHashVal(char *);
-
 int backwardEditDistance2SSE2(char *a, int lena, char *b,int lenb);
 int forwardEditDistance2SSE2(char *a, int lena, char *b,int lenb);
 
@@ -160,19 +151,18 @@ int backwardEditDistanceSSE2Extension(char *a, int lena, char *b,int lenb);
 
 /***********************************/
 
-int editDistance(int refIndex, char *seq, int seqLength, char *matrix);
 
 int verifySingleEndEditDistance(int refIndex, char *lSeq, int lSeqLength, char *rSeq, int rSeqLength, int segLength, 
-				char *matrix, int *map_location, short *seqHashValue);
+				char *matrix, int *map_location);
 
 int verifySingleEndEditDistance2(int refIndex, char *lSeq, int lSeqLength, char *rSeq, int rSeqLength, int segLength, 
-				 char *matrix, int *map_location, short *seqHashValue);
+				 char *matrix, int *map_location);
 
 int verifySingleEndEditDistance4(int refIndex, char *lSeq, int lSeqLength, char *rSeq, int rSeqLength, int segLength, 
-				 char *matrix, int *map_location, short *seqHashValue);
+				 char *matrix, int *map_location);
 
 int verifySingleEndEditDistanceExtension(int refIndex, char *lSeq, int lSeqLength, char *rSeq, int rSeqLength, int segLength,
-					 char *matrix, int *map_location, short *seqHashValue);
+					 char *matrix, int *map_location);
 
 // for fastHASH 
 int compareEntrySize (const void *a, const void *b);											// fastHASH()

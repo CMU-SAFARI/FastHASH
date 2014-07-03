@@ -95,10 +95,6 @@ int _msf_seqListSize;
 Pair *_msf_sort_seqList = NULL;
 int *_msf_map_sort_seqList;
 
-ReadIndexTable *_msf_rIndex = NULL;
-int _msf_rIndexSize;
-int _msf_rIndexMax;
-
 SAM _msf_output;
 
 OPT_FIELDS *_msf_optionalFields;
@@ -2755,6 +2751,7 @@ void preProcessReads() {
   _msf_sort_seqList = getMem(_msf_seqListSize * sizeof(Pair));
   for (i = 0; i < _msf_seqListSize; i++) {
     _msf_sort_seqList[i].hv = hashVal(_msf_seqList[i].seq);
+    //_msf_sort_seqList[i].hv = _msf_seqList[i].hashValue[0];
 
     _msf_sort_seqList[i].readNumber = i;
   }
@@ -2925,230 +2922,10 @@ void finalizeFAST() {
 
 }
 
-/*
-  Will apply the Levenshtein Dynamic programming.
-  Different from verifySingleEndEditDistance fucntion
-  as in this function only one dynamic table is made while
-  in verifySingleEndEditDistance two dynamic table is made
-  for each right and left string
-*/
-int editDistance(int refIndex, char *seq, int seqLength, char *matrix) {
-  int i = 0;
-  int size = 0;
-  int error = 0;
-  int rIndex = 0;
-  int directionIndex = 0;
-
-  int min = 0;
-  int minIndex = 0;
-
-  int tempUp = 0;
-  int tempDown = 0;
-
-  char *ref;
-
-  int errorString = 0;
-  /*
-    1: Up
-    2: Side
-    3: Diagonal Match
-    4: Diagonal Mismatch
-  */
-
-  int upValue;
-  int diagValue;
-  int sideValue;
-
-  ref = _msf_refGen + refIndex - 1;
-
-  rIndex = 1;
-
-  for (i = 0; i <= errThreshold; i++) {
-    score[0][i] = i;
-    score[i][0] = i;
-  }
-
-  while (rIndex <= seqLength + errThreshold) {
-    tempUp =
-      ((rIndex - errThreshold) > 0 ?
-       ((rIndex > seqLength) ?
-	seqLength - errThreshold : rIndex - errThreshold) :
-       1);
-    tempDown = (
-		(rIndex >= seqLength - errThreshold) ?
-		seqLength + 1 : rIndex + errThreshold + 1);
-    for (i = tempUp; i < tempDown; i++) {
-      errorString = (*(ref + rIndex - 1) == *(seq + i - 1));
-
-      upValue = score[i - 1][rIndex] + 1;
-      diagValue = score[i - 1][rIndex - 1] + !errorString;
-      sideValue = score[i][rIndex - 1] + 1;
-
-      if (i != tempUp && i != tempDown - 1)
-	score[i][rIndex] = min3(sideValue, diagValue , upValue);
-
-      else if ((i
-		== ((rIndex - errThreshold) > 0 ? rIndex - errThreshold : 1))
-	       && rIndex <= seqLength)
-	score[i][rIndex] = min(sideValue, diagValue);
-      else if (rIndex > seqLength && (i == seqLength - errThreshold))
-	score[i][rIndex] = sideValue;
-      else
-	score[i][rIndex] = min(diagValue , upValue);
-
-      if (i == tempUp)
-	error = score[i][rIndex];
-      else if (error > score[i][rIndex])
-	error = score[i][rIndex];
-    }
-    rIndex++;
-  }
-
-  min = score[seqLength][seqLength + errThreshold];
-  minIndex = seqLength + errThreshold;
-
-  // Find the Best error for all the possible ways.
-  for (i = 1; i <= 2 * errThreshold; i++) {
-    if (min >= score[seqLength][seqLength + errThreshold - i]
-	&& seqLength + errThreshold - i > 0) {
-      min = score[seqLength][seqLength + errThreshold - i];
-      minIndex = seqLength + errThreshold - i;
-    }
-  }
-
-  error = score[seqLength][minIndex];
-
-  directionIndex = seqLength;
-  rIndex = minIndex;
-  while (directionIndex != 0 || rIndex != 0) {
-
-    if (rIndex == 0) {
-      if (score[directionIndex][rIndex]
-	  - score[directionIndex - 1][rIndex] == 1) {
-	matrix[size] = *(seq + directionIndex - 1);
-	size++;
-	matrix[size] = 'I';
-	directionIndex--;
-      }
-    } else if (directionIndex == 0) {
-      if (score[directionIndex][rIndex]
-	  - score[directionIndex][rIndex - 1] == 1) {
-	matrix[size] = *(ref + rIndex - 1);
-	size++;
-	matrix[size] = 'D';
-	rIndex--;
-      }
-    } else if (directionIndex - rIndex == errThreshold) {
-      if (score[directionIndex][rIndex]
-	  - score[directionIndex - 1][rIndex] == 1) {
-	matrix[size] = *(seq + directionIndex - 1);
-	size++;
-	matrix[size] = 'I';
-	directionIndex--;
-      } else if (score[directionIndex][rIndex]
-		 - score[directionIndex - 1][rIndex - 1] == 1) {
-	matrix[size] = *(ref + rIndex - 1);
-	rIndex--;
-	directionIndex--;
-      } else {
-	matrix[size] = 'M';
-	rIndex--;
-	directionIndex--;
-      }
-
-    } else if (rIndex - directionIndex == errThreshold) {
-      if (score[directionIndex][rIndex]
-	  - score[directionIndex][rIndex - 1] == 1) {
-	matrix[size] = *(ref + rIndex - 1);
-	size++;
-	matrix[size] = 'D';
-	rIndex--;
-      } else if (score[directionIndex][rIndex]
-		 - score[directionIndex - 1][rIndex - 1] == 1) {
-	matrix[size] = *(ref + rIndex - 1);
-	rIndex--;
-	directionIndex--;
-      } else {
-	matrix[size] = 'M';
-	rIndex--;
-	directionIndex--;
-      }
-    } else {
-      if (score[directionIndex][rIndex]
-	  - score[directionIndex - 1][rIndex] == 1
-	  && directionIndex != 0) {
-	matrix[size] = *(seq + directionIndex - 1);
-	size++;
-	matrix[size] = 'I';
-	directionIndex--;
-      } else if (score[directionIndex][rIndex]
-		 - score[directionIndex][rIndex - 1] == 1 && rIndex != 0) {
-	matrix[size] = *(ref + rIndex - 1);
-	size++;
-	matrix[size] = 'D';
-	rIndex--;
-      } else if (score[directionIndex][rIndex]
-		 - score[directionIndex - 1][rIndex - 1] == 1) {
-	matrix[size] = *(ref + rIndex - 1);
-	rIndex--;
-	directionIndex--;
-      } else {
-	matrix[size] = 'M';
-	rIndex--;
-	directionIndex--;
-      }
-    }
-    size++;
-  }
-
-  matrix[size] = '\0';
-
-  char returnString[2 * SEQ_MAX_LENGTH];
-
-  returnString[0] = '\0';
-  reverse(matrix, returnString, size);
-  sprintf(matrix, "%s", returnString);
-
-  return error;
-}
-
-/*
-  Will apply the Levenshtein Dynamic programming.
-  in both right and left direction as long as the
-  threshould error is reached or end of string length
-
-*/
-int msfHashVal(char *seq) {
-  int i = 0;
-  int val = 0, numericVal = 0;
-
-  while (i < 6) {
-    switch (seq[i]) {
-    case 'A':
-      numericVal = 0;
-      break;
-    case 'C':
-      numericVal = 1;
-      break;
-    case 'G':
-      numericVal = 2;
-      break;
-    case 'T':
-      numericVal = 3;
-      break;
-    default:
-      return -1;
-      break;
-    }
-    val = (val << 2) | numericVal;
-    i++;
-  }
-  return val;
-}
 
 int verifySingleEndEditDistance2(int refIndex, char *lSeq, int lSeqLength,
 				 char *rSeq, int rSeqLength, int segLength, char *matrix,
-				 int *map_location, short *seqHashValue) {
+				 int *map_location) {
   int i = 0;
 
   char * ref;
@@ -3861,7 +3638,7 @@ int verifySingleEndEditDistance2(int refIndex, char *lSeq, int lSeqLength,
 
 int verifySingleEndEditDistance4(int refIndex, char *lSeq, int lSeqLength,
 				 char *rSeq, int rSeqLength, int segLength, char *matrix,
-				 int *map_location, short *seqHashValue) {
+				 int *map_location) {
 
   int i = 0;
 
@@ -4230,7 +4007,7 @@ int verifySingleEndEditDistance4(int refIndex, char *lSeq, int lSeqLength,
 
 int verifySingleEndEditDistanceExtension(int refIndex, char *lSeq,
 					 int lSeqLength, char *rSeq, int rSeqLength, int segLength, char *matrix,
-					 int *map_location, short *seqHashValue) {
+					 int *map_location) {
   int i = 0;
 
   char * ref;
@@ -4641,7 +4418,7 @@ int verifySingleEndEditDistanceExtension(int refIndex, char *lSeq,
 
 int verifySingleEndEditDistance(int refIndex, char *lSeq, int lSeqLength,
 				char *rSeq, int rSeqLength, int segLength, char *matrix,
-				int *map_location, short *seqHashValue) {
+				int *map_location) {
 
   int i = 0;
 
@@ -5326,7 +5103,6 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
   char editString[2 * SEQ_MAX_LENGTH];
   char cigar[MAX_CIGAR_SIZE];
 
-  short *_tmpHashValue;
   int key_number = SEQ_LENGTH / WINDOW_SIZE;
   int realLoc, readId;
 
@@ -5336,11 +5112,9 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
     reverse(_msf_seqList[readNumber].qual, rqual, SEQ_LENGTH);
     _tmpQual = rqual;
     _tmpSeq = _msf_seqList[readNumber].rseq;
-    _tmpHashValue = _msf_seqList[readNumber].rhashValue;
   } else {
     _tmpQual = _msf_seqList[readNumber].qual;
     _tmpSeq = _msf_seqList[readNumber].seq;
-    _tmpHashValue = _msf_seqList[readNumber].hashValue;
   }
 
    readId = 2 * readNumber + direction;
@@ -5435,19 +5209,19 @@ void mapSingleEndSeq(unsigned int *l1, int s1, int readNumber, int readSegment,
       if (errThreshold == 2) {
 	err = verifySingleEndEditDistance2(genLoc, _tmpSeq,
 					   leftSeqLength, _tmpSeq + a, rightSeqLength,
-					   middleSeqLength, matrix, &map_location, _tmpHashValue);
+					   middleSeqLength, matrix, &map_location);
       } else if (errThreshold == 4) {
 	err = verifySingleEndEditDistance4(genLoc, _tmpSeq,
 					   leftSeqLength, _tmpSeq + a, rightSeqLength,
-					   middleSeqLength, matrix, &map_location, _tmpHashValue);
+					   middleSeqLength, matrix, &map_location);
       } else if (errThreshold == 3) {
 	err = verifySingleEndEditDistance(genLoc, _tmpSeq,
 					  leftSeqLength, _tmpSeq + a, rightSeqLength,
-					  middleSeqLength, matrix, &map_location, _tmpHashValue);
+					  middleSeqLength, matrix, &map_location);
       } else {
 	err = verifySingleEndEditDistanceExtension(genLoc, _tmpSeq,
 						   leftSeqLength, _tmpSeq + a, rightSeqLength,
-						   middleSeqLength, matrix, &map_location, _tmpHashValue);
+						   middleSeqLength, matrix, &map_location);
       }
     } 
     
@@ -5558,8 +5332,8 @@ int mapAllSingleEndSeq() {
     k = _msf_sort_seqList[i].readNumber;
     int available_key_num = 0;
     for (it = 0; it < key_number; it++) {
-      locs = getCandidates(
-			   hashVal(_msf_seqList[k].seq + it * WINDOW_SIZE));
+      locs = getCandidates(hashVal(_msf_seqList[k].seq + it * WINDOW_SIZE));
+
       if (locs != NULL) {
 	sort_input[available_key_num].key_number = it;
 	sort_input[available_key_num].key_entry = locs;
@@ -5589,8 +5363,9 @@ int mapAllSingleEndSeq() {
     k = _msf_sort_seqList[i].readNumber;
     int available_key_num = 0;
     for (it = 0; it < key_number; it++) {
-      locs = getCandidates(
-			   hashVal(_msf_seqList[k].rseq + it * WINDOW_SIZE));
+      
+      locs = getCandidates(hashVal(_msf_seqList[k].rseq + it * WINDOW_SIZE));
+
       if (locs != NULL) {
 	sort_input[available_key_num].key_number = it;
 	sort_input[available_key_num].key_entry = locs;
@@ -5647,7 +5422,6 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
   char editString[2 * SEQ_MAX_LENGTH];
   char cigar[MAX_CIGAR_SIZE];
 
-  short *_tmpHashValue;
 
   int leftSeqLength = 0;
   int rightSeqLength = 0;
@@ -5663,10 +5437,9 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
 
   if (d == -1) {
     _tmpSeq = _msf_seqList[readNumber].rseq;
-    _tmpHashValue = _msf_seqList[readNumber].rhashValue;
-  } else {
+  } 
+  else {
     _tmpSeq = _msf_seqList[readNumber].seq;
-    _tmpHashValue = _msf_seqList[readNumber].hashValue;
   }
 
   for (z = 0; z < s1; z++) {
@@ -5755,19 +5528,19 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
       if (errThreshold == 2) {
 	err = verifySingleEndEditDistance2(genLoc, _tmpSeq,
 					   leftSeqLength, _tmpSeq + a, rightSeqLength,
-					   middleSeqLength, matrix, &map_location, _tmpHashValue);
+					   middleSeqLength, matrix, &map_location);
       } else if (errThreshold == 4) {
 	err = verifySingleEndEditDistance4(genLoc, _tmpSeq,
 					   leftSeqLength, _tmpSeq + a, rightSeqLength,
-					   middleSeqLength, matrix, &map_location, _tmpHashValue);
+					   middleSeqLength, matrix, &map_location);
       } else if (errThreshold == 3) {
 	err = verifySingleEndEditDistance(genLoc, _tmpSeq,
 					  leftSeqLength, _tmpSeq + a, rightSeqLength,
-					  middleSeqLength, matrix, &map_location, _tmpHashValue);
+					  middleSeqLength, matrix, &map_location);
       } else {
 	err = verifySingleEndEditDistanceExtension(genLoc, _tmpSeq,
 						   leftSeqLength, _tmpSeq + a, rightSeqLength,
-						   middleSeqLength, matrix, &map_location, _tmpHashValue);
+						   middleSeqLength, matrix, &map_location);
       }
     } else {
       err = -1; 
@@ -5851,8 +5624,8 @@ void mapPairedEndSeq() {
     int available_key_num = 0;
     int it = 0;
     for (it = 0; it < key_number; it++) {
-      int key_hash = hashVal(_msf_seqList[k].seq + it * WINDOW_SIZE);
-      locs = getCandidates(key_hash);
+      //int key_hash = 
+      locs = getCandidates(hashVal(_msf_seqList[k].seq + it * WINDOW_SIZE));
       if (locs != NULL) {
 	sort_input[available_key_num].key_number = it;
 	sort_input[available_key_num].key_entry = locs;
@@ -5884,8 +5657,9 @@ void mapPairedEndSeq() {
     int available_key_num = 0;
     int it = 0;
     for (it = 0; it < key_number; it++) {
-      int key_hash = hashVal(_msf_seqList[k].rseq + it * WINDOW_SIZE);
-      locs = getCandidates(key_hash);
+      //int key_hash = 
+      locs = getCandidates(hashVal(_msf_seqList[k].rseq + it * WINDOW_SIZE));
+
       if (locs != NULL) {
 	sort_input[available_key_num].key_number = it;
 	sort_input[available_key_num].key_entry = locs;

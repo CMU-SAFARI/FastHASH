@@ -65,9 +65,6 @@ typedef struct
   char *qual;
   char *hits;
   int readNumber;
-  short *hashValue;
-  short *rhashValue;
-  int *hashValSampleSize;
 } Read;
 
 int readAllReads(char *fileName1, char *fileName2, int compressed, unsigned char *fastq, unsigned char pe, Read **seqList, unsigned int *seqListSize);

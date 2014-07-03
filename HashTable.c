@@ -396,11 +396,6 @@ void configHashTable()
       finalizeLoadingHashTable = &finalizeLoadingIHashTable;
       getCandidates = &getIHashTableCandidates;
     }
-  else
-    {
-
-
-    }
 }
 /**********************************************/
 int initLoadingHashTable(char *fileName)
