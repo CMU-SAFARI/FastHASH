@@ -93,7 +93,6 @@ Read *_msf_seqList;
 int _msf_seqListSize;
 
 Pair *_msf_sort_seqList = NULL;
-int *_msf_map_sort_seqList;
 
 SAM _msf_output;
 
@@ -2756,11 +2755,6 @@ void preProcessReads() {
   
   qsort(_msf_sort_seqList, _msf_seqListSize, sizeof(Pair), compare);
 
-  _msf_map_sort_seqList = getMem(_msf_seqListSize * sizeof(int));
-
-  for (i = 0; i < _msf_seqListSize; i++)
-    _msf_map_sort_seqList[_msf_seqList[i].readNumber] = i;
-
 }
 /**********************************************/
 
@@ -2915,7 +2909,6 @@ void finalizeFAST() {
   freeMem(_msf_seqHits, (_msf_seqListSize) * sizeof(int));
   freeMem(_msf_refGenName, 4 * SEQ_LENGTH);
 
-  freeMem(_msf_map_sort_seqList, sizeof(Pair) * _msf_seqListSize);
   freeMem(_msf_sort_seqList, sizeof(int) * _msf_seqListSize);
 
 }
