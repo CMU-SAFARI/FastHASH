@@ -134,16 +134,21 @@ int mapAllSingleEndSeq();
 
 void generateCigarFromMD(char *, int, char *);
 
+/*
 int backwardEditDistance2SSE2(char *a, int lena, char *b,int lenb);
 int forwardEditDistance2SSE2(char *a, int lena, char *b,int lenb);
+*/
 
 double mapProb(int, char *, int, int);
 int mapQ(int);
+
+/*
 int forwardEditDistanceSSE2G(char *a, int lena, char *b,int lenb);
 int backwardEditDistanceSSE2G(char *a, int lena, char *b,int lenb);
 
 int forwardEditDistance4SSE2(char *a, int lena, char *b,int lenb);
 int backwardEditDistance4SSE2(char *a, int lena, char *b,int lenb);
+*/
 
 int forwardEditDistanceSSE2Extension(char *a, int lena, char *b,int lenb);
 int backwardEditDistanceSSE2Extension(char *a, int lena, char *b,int lenb);
@@ -151,7 +156,7 @@ int backwardEditDistanceSSE2Extension(char *a, int lena, char *b,int lenb);
 
 /***********************************/
 
-
+/*
 int verifySingleEndEditDistance(int refIndex, char *lSeq, int lSeqLength, char *rSeq, int rSeqLength, int segLength, 
 				char *matrix, int *map_location);
 
@@ -160,6 +165,8 @@ int verifySingleEndEditDistance2(int refIndex, char *lSeq, int lSeqLength, char 
 
 int verifySingleEndEditDistance4(int refIndex, char *lSeq, int lSeqLength, char *rSeq, int rSeqLength, int segLength, 
 				 char *matrix, int *map_location);
+
+*/
 
 int verifySingleEndEditDistanceExtension(int refIndex, char *lSeq, int lSeqLength, char *rSeq, int rSeqLength, int segLength,
 					 char *matrix, int *map_location);
