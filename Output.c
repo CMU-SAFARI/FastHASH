@@ -249,7 +249,7 @@ void SAMheaderTX(FILE *outfp, int check)
   char chrom[FILE_NAME_LENGTH];
   int chromlen;
   char rest[FILE_NAME_LENGTH];
-  char *ret;
+  char *ret = NULL;
 
   sprintf(fainame, "%s.fai",fileName[0]);
   fp = fopen(fainame, "r");
@@ -269,11 +269,12 @@ void SAMheaderTX(FILE *outfp, int check)
     fprintf(outfp, "@PG\tID:mrFAST\tPN:mrFAST\tVN:%s.%s\n",  versionNumber, versionNumberF);
   }
   else if (check){
-    fprintf(stdout, "WARNING: %s.fai not found, the SAM file(s) will not have a header.\n", fileName[0]);
-    fprintf(stdout, "You can generate the .fai file using samtools. Please place it in the same directory with the index to enable SAM headers.\n");
+    fprintf(stderr, "WARNING: %s.fai not found, the SAM file(s) will not have a header.\n", fileName[0]);
+    fprintf(stderr, "You can generate the .fai file using samtools. Please place it in the same directory with the index to enable SAM headers.\n");
   }
 
-  ret++;
+  if (ret == NULL) 
+    fprintf(stderr, "Reference genome index file read error.\n");
 }
 
 void SAMheaderGZ(gzFile outgzfp)
@@ -283,7 +284,7 @@ void SAMheaderGZ(gzFile outgzfp)
   char chrom[FILE_NAME_LENGTH];
   int chromlen;
   char rest[FILE_NAME_LENGTH];
-  char *ret;
+  char *ret = NULL;
 
   sprintf(fainame, "%s.fai",fileName[0]);
   fp = fopen(fainame, "r");
@@ -303,11 +304,13 @@ void SAMheaderGZ(gzFile outgzfp)
     gzprintf(outgzfp, "@PG\tID:mrFAST\tPN:mrFAST\tVN:%s.%s\n",  versionNumber, versionNumberF);
   }
   else{
-    fprintf(stdout, "WARNING: %s.fai not found, the SAM file(s) will not have a header.\n", fileName[0]);
-    fprintf(stdout, "You can generate the .fai file using samtools. Please place it in the same directory with the index to enable SAM headers.\n");
+    fprintf(stderr, "WARNING: %s.fai not found, the SAM file(s) will not have a header.\n", fileName[0]);
+    fprintf(stderr, "You can generate the .fai file using samtools. Please place it in the same directory with the index to enable SAM headers.\n");
   }
 
-  ret++;
+  if (ret == NULL) 
+    fprintf(stderr, "Reference genome index file read error.\n");
+
 }
 
 

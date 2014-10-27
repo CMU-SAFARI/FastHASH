@@ -67,7 +67,7 @@
 double binomial_coefficient(int n, int k);
 float calculateScore(int index, char *seq, char *qual, char *md);
 unsigned char mrFAST = 1;
-char *versionNumberF = "0.2";
+char *versionNumberF = "1.0";
 
 long long verificationCnt = 0;
 long long mappingCnt = 0;
@@ -1202,25 +1202,25 @@ int verifySingleEndEditDistanceExtension(int refIndex, char *lSeq,
 
   if (debugMode && totalError != error2 + error3) {
     for (i = 0; i < lSeqLength; i++)
-      printf("%c", *(tempref - 1 - i));
-    printf("\n");
+      fprintf(stderr, "%c", *(tempref - 1 - i));
+    fprintf(stderr, "\n");
     for (i = 0; i < lSeqLength; i++)
-      printf("%c", *(lSeq + i));
-    printf("\n");
+      fprintf(stderr, "%c", *(lSeq + i));
+    fprintf(stderr, "\n");
 
     for (i = 0; i < rSeqLength; i++)
-      printf("%c", *(tempref + segLength + i));
-    printf("\n");
+      fprintf(stderr, "%c", *(tempref + segLength + i));
+    fprintf(stderr, "\n");
 
     for (i = 0; i < rSeqLength; i++)
-      printf("%c", *(rSeq + i));
-    printf("\n");
+      fprintf(stderr, "%c", *(rSeq + i));
+    fprintf(stderr, "\n");
 
-    printf("ERROR=%d\n", totalError);
-    printf("ERROR_SSE=%d\n", error3 + error2);
+    fprintf(stderr, "ERROR=%d\n", totalError);
+    fprintf(stderr, "ERROR_SSE=%d\n", error3 + error2);
 
-    printf("ERROR_SSE_back=%d E_SSE_forw=%d\n", error3, error2);
-    printf("ERROR_back=%d E_forw=%d\n", error1, error);
+    fprintf(stderr, "ERROR_SSE_back=%d E_SSE_forw=%d\n", error3, error2);
+    fprintf(stderr, "ERROR_back=%d E_forw=%d\n", error1, error);
 
   }
 
@@ -2139,7 +2139,7 @@ void mapPairEndSeqList(unsigned int *l1, int s1, int readNumber,
       } else {
 	if (strlen(cigar) > SEQ_LENGTH
 	    || strlen(editString) > SEQ_LENGTH) {
-	  printf(
+	  fprintf(stderr, 
 		 "ERROR in %d read size(After mapping) exceeds cigar=%d md =%d cigar=%s md =%s\n",
 		 r, (int) strlen(cigar), (int) strlen(editString),
 		 cigar, editString);
@@ -2275,7 +2275,7 @@ void mapPairedEndSeq() {
 	}
 	if(debugMode && (cur->cigarSize[j % MAP_CHUNKS] > SEQ_LENGTH || cur->mdSize[j % MAP_CHUNKS] > SEQ_LENGTH))
 	  {
-	    printf("ERROR in %d read size exceeds cigar=%d md =%d cigar=%s md =%s\n", i,  cur->cigarSize[j % MAP_CHUNKS], cur->mdSize[j % MAP_CHUNKS], cur->cigar[j % MAP_CHUNKS], cur->md[j % MAP_CHUNKS]);	
+	    fprintf(stderr, "ERROR in %d read size exceeds cigar=%d md =%d cigar=%s md =%s\n", i,  cur->cigarSize[j % MAP_CHUNKS], cur->mdSize[j % MAP_CHUNKS], cur->cigar[j % MAP_CHUNKS], cur->md[j % MAP_CHUNKS]);	
 	  }
 
 	tmpOut = fwrite(&(cur->loc[j % MAP_CHUNKS]), sizeof(int), 1,
@@ -2821,7 +2821,7 @@ void outputPairedEnd() {
 	  tmp = fwrite(&sc, sizeof(float), 1, out1);
 
 	  if (mi2[k].cigarSize > SEQ_LENGTH || mi2[k].cigarSize <= 0)
-	    printf("ERROR  CIGAR size=%d %s\n", mi2[k].cigarSize,
+	    fprintf(stderr, "ERROR  CIGAR size=%d %s\n", mi2[k].cigarSize,
 		   _msf_seqList[i * 2 + 1].seq);
 
 	  tmp = fwrite(&(mi2[k].cigarSize), sizeof(int), 1, out1);
@@ -2855,7 +2855,7 @@ void outputPairedEnd() {
 	  tmp = fwrite(&sc, sizeof(float), 1, out1);
 
 	  if (mi1[j].cigarSize > SEQ_LENGTH || mi1[j].cigarSize <= 0)
-	    printf("ERROR %d %s\n", mi1[j].cigarSize,
+	    fprintf(stderr, "ERROR %d %s\n", mi1[j].cigarSize,
 		   _msf_seqList[i * 2 + 1].seq);
 
 	  tmp = fwrite(&(mi1[j].cigarSize), sizeof(int), 1, out1);

@@ -90,6 +90,8 @@ int hashVal(char *seq)
     }
   return val;
 }
+
+
 /**********************************************/
 void freeIHashTableContent(IHashTable *hashTable, unsigned int maxSize)
 {
@@ -226,8 +228,8 @@ void generateIHashTable(char *fileName, char *indexName)
     return;		
   initSavingIHashTable(indexName);
 	
-  fprintf(stdout, "Generating Index from %s", fileName);
-  fflush(stdout);
+  fprintf(stderr, "Generating Index from %s", fileName);
+  fflush(stderr);
 
   char *prev = getMem (CONTIG_NAME_SIZE);
   prev[0]='\0';
@@ -238,14 +240,14 @@ void generateIHashTable(char *fileName, char *indexName)
 
       if ( strcmp(prev, refGenName) != 0)
 	{
-	  fprintf(stdout, "\n - %s ", refGenName);
-	  fflush(stdout);
+	  fprintf(stderr, "\n - %s ", refGenName);
+	  fflush(stderr);
 	  sprintf(prev, "%s", refGenName);
 	}
       else
 	{
-	  fprintf(stdout, ".");
-	  fflush(stdout);
+	  fprintf(stderr, ".");
+	  fflush(stderr);
 	}
 		
       l = strlen(refGen) - WINDOW_SIZE;
@@ -270,7 +272,7 @@ void generateIHashTable(char *fileName, char *indexName)
   finalizeLoadingRefGenome();
   finalizeSavingIHashTable();
 
-  fprintf(stdout, "\nDONE in %0.2fs!\n", (getTime()-startTime));
+  fprintf(stderr, "\nDONE in %0.2fs!\n", (getTime()-startTime));
 }
 
 /**********************************************/
@@ -418,7 +420,7 @@ int initLoadingHashTable(char *fileName)
 
   if (bsIndex)
     {
-      fprintf(stdout, "Error: Wrong Type of Index indicated");
+      fprintf(stderr, "Error: Wrong Type of Index indicated");
       return 0;
     }
 	

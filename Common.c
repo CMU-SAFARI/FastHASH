@@ -60,8 +60,8 @@ FILE *fileOpen(char *fileName, char *mode)
   fp = fopen (fileName, mode);
   if (fp == NULL)
     {
-      fprintf(stdout, "Error: Cannot Open the file %s\n", fileName);
-      fflush(stdout);
+      fprintf(stderr, "Error: Cannot Open the file %s\n", fileName);
+      fflush(stderr);
       exit(0);
     }
   return fp;
@@ -73,8 +73,8 @@ gzFile fileOpenGZ(char *fileName, char *mode)
   gzfp = gzopen (fileName, mode);
   if (gzfp == Z_NULL)
     {
-      fprintf(stdout, "Error: Cannot Open the file %s\n", fileName);
-      fflush(stdout);
+      fprintf(stderr, "Error: Cannot Open the file %s\n", fileName);
+      fflush(stderr);
       exit(0);
     }
   return gzfp;

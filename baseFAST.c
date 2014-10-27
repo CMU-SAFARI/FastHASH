@@ -146,9 +146,9 @@ int main(int argc, char *argv[])
       // Preparing output
       initOutput(outputFileName, outCompressed);
 
-      fprintf(stdout, "-----------------------------------------------------------------------------------------------------------\n");
-      fprintf(stdout, "| %15s | %15s | %15s | %15s | %15s %15s |\n","Seq. Name","Loading Time", "Mapping Time", "Memory Usage(M)","Total Mappings","Mapped reads");
-      fprintf(stdout, "-----------------------------------------------------------------------------------------------------------\n");
+      fprintf(stderr, "-----------------------------------------------------------------------------------------------------------\n");
+      fprintf(stderr, "| %15s | %15s | %15s | %15s | %15s %15s |\n","Seq. Name","Loading Time", "Mapping Time", "Memory Usage(M)","Total Mappings","Mapped reads");
+      fprintf(stderr, "-----------------------------------------------------------------------------------------------------------\n");
 
       /********************************
        * Regular Mode
@@ -185,9 +185,9 @@ int main(int argc, char *argv[])
 	      if ( !flag || strcmp(prevGen, curGen)!=0)
 		{
 
-		  fprintf(stdout, "| %15s | %15.2f | %15.2f | %15.2f | %15lld %15lld |\n",
+		  fprintf(stderr, "| %15s | %15.2f | %15.2f | %15.2f | %15lld %15lld |\n",
 			  prevGen,loadingTime, mappingTime, maxMem, mappingCnt , mappedSeqCnt);
-		  fflush(stdout);
+		  fflush(stderr);
 
 		  totalMappingTime += mappingTime;
 		  totalLoadingTime += loadingTime;
@@ -203,9 +203,9 @@ int main(int argc, char *argv[])
 		}
 	      else if (progressRep && mappingTime != 0)
 		{
-		  fprintf(stdout, "| %15s | %15.2f | %15.2f | %15.2f | %15lld %15lld |\n",
+		  fprintf(stderr, "| %15s | %15.2f | %15.2f | %15.2f | %15lld %15lld |\n",
 			  prevGen,loadingTime, mappingTime, maxMem, mappingCnt , mappedSeqCnt);
-		  fflush(stdout);
+		  fflush(stderr);
 		}
 
 	      sprintf(prevGen, "%s", curGen);
@@ -274,9 +274,9 @@ int main(int argc, char *argv[])
 		  mappingTime += getTime() - lstartTime;
 		  //DISCORDANT			
 
-		  fprintf(stdout, "| %15s | %15.2f | %15.2f | %15.2f | %15lld %15lld |\n",
+		  fprintf(stderr, "| %15s | %15.2f | %15.2f | %15.2f | %15lld %15lld |\n",
 			  prevGen,loadingTime, mappingTime, maxMem, mappingCnt , mappedSeqCnt);
-		  fflush(stdout);
+		  fflush(stderr);
 
 		  totalMappingTime += mappingTime;
 		  totalLoadingTime += loadingTime;
@@ -292,9 +292,9 @@ int main(int argc, char *argv[])
 		}
 	      else if (progressRep && mappingTime != 0)
 		{
-		  fprintf(stdout, "| %15s | %15.2f | %15.2f | %15.2f | %15lld %15lld |\n",
+		  fprintf(stderr, "| %15s | %15.2f | %15.2f | %15.2f | %15lld %15lld |\n",
 			  prevGen,loadingTime, mappingTime, maxMem, mappingCnt , mappedSeqCnt);
-		  fflush(stdout);
+		  fflush(stderr);
 		}
 
 	      sprintf(prevGen, "%s", curGen);
@@ -335,14 +335,14 @@ int main(int argc, char *argv[])
 
       finalizeOutput();
 
-      fprintf(stdout, "-----------------------------------------------------------------------------------------------------------\n");
-      fprintf(stdout, "%19s%16.2f%18.2f\n\n", "Total:",totalLoadingTime, totalMappingTime);
+      fprintf(stderr, "-----------------------------------------------------------------------------------------------------------\n");
+      fprintf(stderr, "%19s%16.2f%18.2f\n\n", "Total:",totalLoadingTime, totalMappingTime);
       if (pairedEndDiscordantMode)
-	fprintf(stdout, "Post Processing Time: %18.2f \n", ppTime);
-      fprintf(stdout, "%-30s%10.2f\n","Total Time:", totalMappingTime+totalLoadingTime);
-      fprintf(stdout, "%-30s%10d\n","Total No. of Reads:", seqListSize);
-      fprintf(stdout, "%-30s%10lld\n","Total No. of Mappings:", mappingCnt);
-      fprintf(stdout, "%-30s%10.0f\n\n","Avg No. of locations verified:", ceil((float)verificationCnt/seqListSize));
+	fprintf(stderr, "Post Processing Time: %18.2f \n", ppTime);
+      fprintf(stderr, "%-30s%10.2f\n","Total Time:", totalMappingTime+totalLoadingTime);
+      fprintf(stderr, "%-30s%10d\n","Total No. of Reads:", seqListSize);
+      fprintf(stderr, "%-30s%10lld\n","Total No. of Mappings:", mappingCnt);
+      fprintf(stderr, "%-30s%10.0f\n\n","Avg No. of locations verified:", ceil((float)verificationCnt/seqListSize));
 
       int cof = (pairedEndMode)?2:1;
 
@@ -363,7 +363,7 @@ int main(int argc, char *argv[])
 	  frequency[maxHits] = completedSeqCnt;
 	  for ( i=0 ; i <= maxHits; i++)
 	    {
-	      fprintf(stdout, "%-30s%10d%10d%10.2f%%\n","Reads Mapped to ", i, frequency[i], 100*(float)frequency[i]/(float)seqListSize);
+	      fprintf(stderr, "%-30s%10d%10d%10.2f%%\n","Reads Mapped to ", i, frequency[i], 100*(float)frequency[i]/(float)seqListSize);
 	    }
 	}
 

@@ -207,7 +207,7 @@ int parseCommandLine (int argc, char *argv[])
 	  return 0;
 	  break;
 	case 'v':
-	  fprintf(stdout, "mrFAST %s.%s with FastHASH\n", versionNumber, versionNumberF);
+	  fprintf(stderr, "mrFAST %s.%s with FastHASH\n", versionNumber, versionNumberF);
 	  return 0;
 	  break;				
 	case '?': 
@@ -221,13 +221,13 @@ int parseCommandLine (int argc, char *argv[])
   
   if (indexingMode + searchingMode != 1)
     {
-      fprintf(stdout, "ERROR: Indexing / Searching mode should be selected\n");
+      fprintf(stderr, "ERROR: Indexing / Searching mode should be selected\n");
       return 0;
     }
 
   if (WINDOW_SIZE > 15 || WINDOW_SIZE < 11)
     {
-      fprintf(stdout, "ERROR: Window size should be in [12..15]\n");
+      fprintf(stderr, "ERROR: Window size should be in [12..15]\n");
       return 0;
     }
 
@@ -239,13 +239,13 @@ int parseCommandLine (int argc, char *argv[])
 
       if (fastaFile == NULL)
 	{
-	  fprintf(stdout, "ERROR: Reference(s) should be indicated for indexing\n");
+	  fprintf(stderr, "ERROR: Reference(s) should be indicated for indexing\n");
 	  return 0;
 	}
 
       if (pairedEndDiscordantMode)
 	{
-	  fprintf(stdout, "ERROR: --discordant-vh cannot be used in indexing mode. \n");
+	  fprintf(stderr, "ERROR: --discordant-vh cannot be used in indexing mode. \n");
 	  return 0;
 	}
 
@@ -258,7 +258,7 @@ int parseCommandLine (int argc, char *argv[])
       CONTIG_MAX_SIZE	= 330000000;
       
       if (pairedEndModeMP && pairedEndModePE){
-	fprintf(stdout, "ERROR: Use either --pe or --mp, not both. \n");
+	fprintf(stderr, "ERROR: Use either --pe or --mp, not both. \n");
 	return 0;
       }
       
@@ -266,44 +266,44 @@ int parseCommandLine (int argc, char *argv[])
 		
       if (fastaFile == NULL)
 	{
-	  fprintf(stdout, "ERROR: Index File should be indiciated for searching\n");
+	  fprintf(stderr, "ERROR: Index File should be indiciated for searching\n");
 	  return 0;
 	}
 
       if (seqFile1 == NULL && seqFile2 == NULL)
 	{
-	  fprintf(stdout, "ERROR: Please indicate a sequence file for searching.\n");
+	  fprintf(stderr, "ERROR: Please indicate a sequence file for searching.\n");
 	  return 0;
 	}
 
 
       if (!pairedEndMode && seqFile2 != NULL)
 	{
-	  fprintf(stdout, "ERROR: Second File can be indicated in pairedend mode\n");
+	  fprintf(stderr, "ERROR: Second File can be indicated in pairedend mode\n");
 	  return 0;
 	}
 
       if (pairedEndMode && (minPairEndedDistance <0 || maxPairEndedDistance < 0 || minPairEndedDistance > maxPairEndedDistance))
 	{
-	  fprintf(stdout, "ERROR: Please enter a valid range for pairedend sequences.\n");
+	  fprintf(stderr, "ERROR: Please enter a valid range for pairedend sequences.\n");
 	  return 0;
 	}
 
       if (pairedEndMode && seqFile1 == NULL)
 	{
-	  fprintf(stdout, "ERROR: Please indicate the first file for pairedend search.\n");
+	  fprintf(stderr, "ERROR: Please indicate the first file for pairedend search.\n");
 	  return 0;
 	}
 
       if (!pairedEndMode && pairedEndDiscordantMode)
 	{
-	  fprintf(stdout, "ERROR: --discordant-vh should be used with --pe\n");
+	  fprintf(stderr, "ERROR: --discordant-vh should be used with --pe\n");
 	  return 0;
 	}
 
       if (!pairedEndMode && pairedEndProfilingMode)
 	{
-	  fprintf(stdout, "ERROR: --profile should be used with --pe\n");
+	  fprintf(stderr, "ERROR: --profile should be used with --pe\n");
 	  return 0;
 	}
 
@@ -312,25 +312,25 @@ int parseCommandLine (int argc, char *argv[])
 		
       if (readGroup[0] != 0 && sampleName[0] == 0)
 	{
-	  fprintf(stdout, "ERROR: --sample should be used with --rg\n");
+	  fprintf(stderr, "ERROR: --sample should be used with --rg\n");
 	  return 0;
 	}
 
       if (readGroup[0] != 0 && libName[0] == 0)
 	{
-	  fprintf(stdout, "ERROR: --lib should be used with --rg\n");
+	  fprintf(stderr, "ERROR: --lib should be used with --rg\n");
 	  return 0;
 	}
 
       if (readGroup[0] == 0 && sampleName[0] != 0)
 	{
-	  fprintf(stdout, "ERROR: --rg should be used with --sample\n");
+	  fprintf(stderr, "ERROR: --rg should be used with --sample\n");
 	  return 0;
 	}
 
       if (readGroup[0] == 0 && libName[0] != 0)
 	{
-	  fprintf(stdout, "ERROR: --rg should be used with --lib\n");
+	  fprintf(stderr, "ERROR: --rg should be used with --lib\n");
 	  return 0;
 	}
 
@@ -367,50 +367,50 @@ void printHelp()
   char *errorType;
   if (mrFAST)
     {
-      fprintf(stdout,"mrFAST : Micro-Read Fast Alignment Search Tool. Enhanced with FastHASH.\n\n");
-      fprintf(stdout,"Usage: mrfast [options]\n\n");
+      fprintf(stderr,"mrFAST : Micro-Read Fast Alignment Search Tool. Enhanced with FastHASH.\n\n");
+      fprintf(stderr,"Usage: mrfast [options]\n\n");
       errorType="edit distance";
     }
   else
     {
-      fprintf(stdout,"mrsFAST : Micro-Read Substitutions (only) Fast Alignment Search Tool.\n\n");
-      fprintf(stdout,"mrsFAST is a cache oblivious read mapping tool. mrsFAST capable of mapping\n");
-      fprintf(stdout,"single and paired end reads to the reference genome. Bisulfite treated \n");
-      fprintf(stdout,"sequences are not supported in this version. By default mrsFAST reports  \n");
-      fprintf(stdout,"the output in SAM format.\n\n");
-      fprintf(stdout,"Usage: mrsFAST [options]\n\n");
+      fprintf(stderr,"mrsFAST : Micro-Read Substitutions (only) Fast Alignment Search Tool.\n\n");
+      fprintf(stderr,"mrsFAST is a cache oblivious read mapping tool. mrsFAST capable of mapping\n");
+      fprintf(stderr,"single and paired end reads to the reference genome. Bisulfite treated \n");
+      fprintf(stderr,"sequences are not supported in this version. By default mrsFAST reports  \n");
+      fprintf(stderr,"the output in SAM format.\n\n");
+      fprintf(stderr,"Usage: mrsFAST [options]\n\n");
       errorType="hamming distance";
     }
 
-  fprintf(stdout,"General Options:\n");
-  fprintf(stdout," -v|--version\t\tCurrent Version.\n");
-  fprintf(stdout," -h\t\t\tShows the help file.\n");
-  fprintf(stdout,"\n\n");
+  fprintf(stderr,"General Options:\n");
+  fprintf(stderr," -v|--version\t\tCurrent Version.\n");
+  fprintf(stderr," -h\t\t\tShows the help file.\n");
+  fprintf(stderr,"\n\n");
 
-  fprintf(stdout,"Indexing Options:\n");
-  fprintf(stdout," --index [file]\t\tGenerate an index from the specified fasta file. \n");
-  fprintf(stdout," --ws [int]\t\tSet window size for indexing (default:12 max:14).\n");
-  fprintf(stdout,"\n\n");
+  fprintf(stderr,"Indexing Options:\n");
+  fprintf(stderr," --index [file]\t\tGenerate an index from the specified fasta file. \n");
+  fprintf(stderr," --ws [int]\t\tSet window size for indexing (default:12 max:14).\n");
+  fprintf(stderr,"\n\n");
 
-  fprintf(stdout,"Searching Options:\n");
-  fprintf(stdout," --search [file]\tSearch in the specified genome. Provide the path to the fasta file. \n\t\t\tIndex file should be in the same directory.\n");
-  fprintf(stdout," --pe \t\t\tSearch will be done in Paired-End mode.\n");
-  fprintf(stdout," --seq [file]\t\tInput sequences in fasta/fastq format [file]. If \n\t\t\tpaired end reads are interleaved, use this option.\n");
-  fprintf(stdout," --seq1 [file]\t\tInput sequences in fasta/fastq format [file] (First \n\t\t\tfile). Use this option to indicate the first file of \n\t\t\tpaired end reads. \n");
-  fprintf(stdout," --seq2 [file]\t\tInput sequences in fasta/fastq format [file] (Second \n\t\t\tfile). Use this option to indicate the second file of \n\t\t\tpaired end reads.  \n");
-  fprintf(stdout," -o [file]\t\tOutput of the mapped sequences. The default is \"output\".\n");
-  fprintf(stdout," -u [file]\t\tSave unmapped sequences in fasta/fastq format.\n");
-  fprintf(stdout," --best   \t\tOnly the best mapping from all the possible mapping is returned.\n");
-  fprintf(stdout," --seqcomp \t\tIndicates that the input sequences are compressed (gz).\n");
-  fprintf(stdout," --outcomp \t\tIndicates that output file should be compressed (gz).\n");
-  fprintf(stdout," -e [int]\t\tMaximum allowed %s (default 4%% of the read length).\n", errorType);
-  fprintf(stdout," --min [int]\t\tMin distance allowed between a pair of end sequences.\n");
-  fprintf(stdout," --max [int]\t\tMax distance allowed between a pair of end sequences.\n");
-  fprintf(stdout," --maxoea [int]\t\tMax number of One End Anchored (OEA) returned for each read pair.\n\t\t\tWe recommend 100 or above for NovelSeq use. Default = 100.\n");
-  fprintf(stdout," --maxdis [int]\t\tMax number of discordant map locations returned for each read pair.\n\t\t\tWe recommend 300 or above for VariationHunter use. Default = 300.\n");
-  fprintf(stdout," --crop [int]\t\tTrim the reads to the given length.\n");
-  fprintf(stdout," --sample [string]\tSample name to be added to the SAM header (optional).\n");
-  fprintf(stdout," --rg [string]\t\tRead group ID to be added to the SAM header (optional).\n");
-  fprintf(stdout," --lib [string]\t\tLibrary name to be added to the SAM header (optional).\n");
-  fprintf(stdout,"\n\n");
+  fprintf(stderr,"Searching Options:\n");
+  fprintf(stderr," --search [file]\tSearch in the specified genome. Provide the path to the fasta file. \n\t\t\tIndex file should be in the same directory.\n");
+  fprintf(stderr," --pe \t\t\tSearch will be done in Paired-End mode.\n");
+  fprintf(stderr," --seq [file]\t\tInput sequences in fasta/fastq format [file]. If \n\t\t\tpaired end reads are interleaved, use this option.\n");
+  fprintf(stderr," --seq1 [file]\t\tInput sequences in fasta/fastq format [file] (First \n\t\t\tfile). Use this option to indicate the first file of \n\t\t\tpaired end reads. \n");
+  fprintf(stderr," --seq2 [file]\t\tInput sequences in fasta/fastq format [file] (Second \n\t\t\tfile). Use this option to indicate the second file of \n\t\t\tpaired end reads.  \n");
+  fprintf(stderr," -o [file]\t\tOutput of the mapped sequences. The default is \"output\".\n");
+  fprintf(stderr," -u [file]\t\tSave unmapped sequences in fasta/fastq format.\n");
+  fprintf(stderr," --best   \t\tOnly the best mapping from all the possible mapping is returned.\n");
+  fprintf(stderr," --seqcomp \t\tIndicates that the input sequences are compressed (gz).\n");
+  fprintf(stderr," --outcomp \t\tIndicates that output file should be compressed (gz).\n");
+  fprintf(stderr," -e [int]\t\tMaximum allowed %s (default 4%% of the read length).\n", errorType);
+  fprintf(stderr," --min [int]\t\tMin distance allowed between a pair of end sequences.\n");
+  fprintf(stderr," --max [int]\t\tMax distance allowed between a pair of end sequences.\n");
+  fprintf(stderr," --maxoea [int]\t\tMax number of One End Anchored (OEA) returned for each read pair.\n\t\t\tWe recommend 100 or above for NovelSeq use. Default = 100.\n");
+  fprintf(stderr," --maxdis [int]\t\tMax number of discordant map locations returned for each read pair.\n\t\t\tWe recommend 300 or above for VariationHunter use. Default = 300.\n");
+  fprintf(stderr," --crop [int]\t\tTrim the reads to the given length.\n");
+  fprintf(stderr," --sample [string]\tSample name to be added to the SAM header (optional).\n");
+  fprintf(stderr," --rg [string]\t\tRead group ID to be added to the SAM header (optional).\n");
+  fprintf(stderr," --lib [string]\t\tLibrary name to be added to the SAM header (optional).\n");
+  fprintf(stderr,"\n\n");
 }

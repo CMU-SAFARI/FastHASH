@@ -242,14 +242,14 @@ int readAllReads(char *fileName1,
 	if (cropSize > 0) 
 	  {
 	    errThreshold = (int) ceil(cropSize * 0.04);
-	    fprintf(stdout, "Sequence length: %d bp. Error threshold is set to %d bp.\n", cropSize, errThreshold);
+	    fprintf(stderr, "Sequence length: %d bp. Error threshold is set to %d bp.\n", cropSize, errThreshold);
 	  }
 	else
 	  {
 	    errThreshold = (int) ceil((strlen(seq1)-1) * 0.04);
-	    fprintf(stdout, "Sequence length: %d bp. Error threshold is set to %d bp.\n", ((int)strlen(seq1)-1), errThreshold);
+	    fprintf(stderr, "Sequence length: %d bp. Error threshold is set to %d bp.\n", ((int)strlen(seq1)-1), errThreshold);
 	  }
-	fprintf(stdout, "You can override this value using the -e parameter.\n");
+	fprintf(stderr, "You can override this value using the -e parameter.\n");
       }
 	
       
@@ -366,7 +366,7 @@ int readAllReads(char *fileName1,
 	  }
 
 	  if (clipped == 1 || clipped == 2){
-	    fprintf(stdout, "[PE mode Warning] Sequence lengths are different,  read #%d is clipped to match.\n", clipped);
+	    fprintf(stderr, "[PE mode Warning] Sequence lengths are different,  read #%d is clipped to match.\n", clipped);
 	    clipped = 3;
 	  }
 			
@@ -489,7 +489,7 @@ int readAllReads(char *fileName1,
     }
   else
     {
-      fprintf(stdout, "ERROR: No reads can be found for mapping\n");
+      fprintf(stderr, "ERROR: No reads can be found for mapping\n");
       return 0;
     }
 
@@ -524,9 +524,9 @@ int readAllReads(char *fileName1,
   if ( pairedEnd ) discarded *= 2;
 
   if (seqCnt>1)
-    fprintf(stdout, "%d sequences are read in %0.2f. (%d discarded) [Mem:%0.2f M]\n", seqCnt, (getTime()-startTime), discarded, getMemUsage());
+    fprintf(stderr, "%d sequences are read in %0.2f. (%d discarded) [Mem:%0.2f M]\n", seqCnt, (getTime()-startTime), discarded, getMemUsage());
   else
-    fprintf(stdout, "%d sequence is read in %0.2f. (%d discarded) [Mem:%0.2f M]\n", seqCnt, (getTime()-startTime), discarded, getMemUsage());
+    fprintf(stderr, "%d sequence is read in %0.2f. (%d discarded) [Mem:%0.2f M]\n", seqCnt, (getTime()-startTime), discarded, getMemUsage());
 
   return 1;
 }
@@ -614,8 +614,8 @@ void adjustQual(Read *list, int seqCnt){
   }
   
   if (offset == 64){
-    fprintf(stdout, "[Quality Warning] Phred offset is 64. Readjusting to 33.\n");
-    fflush(stdout);
+    fprintf(stderr, "[Quality Warning] Phred offset is 64. Readjusting to 33.\n");
+    fflush(stderr);
     for (i=0;i<seqCnt;i++){
       for (j=0;j<len;j++){
 	list[i].qual[j] -= 31;
