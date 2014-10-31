@@ -426,7 +426,6 @@ int initLoadingHashTable(char *fileName)
 	
   tmp = fread(&WINDOW_SIZE, sizeof(WINDOW_SIZE), 1, _ih_fp);
 
-  fprintf(stderr, "Hash table kmer length: %d\n", WINDOW_SIZE);
   configHashTable();
 
   if (_ih_maxHashTableSize != pow(4, WINDOW_SIZE))
