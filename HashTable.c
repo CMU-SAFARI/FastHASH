@@ -286,7 +286,7 @@ void finalizeLoadingIHashTable()
 }
 
 /**********************************************/
-int  loadIHashTable(double *loadTime, int errThreshould)
+int  loadIHashTable(double *loadTime)
 {
   double startTime = getTime();
   unsigned char extraInfo = 0;
